@@ -2,27 +2,24 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, Eye, EyeOff, X } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
 import { FaGithub, FaGoogle } from "react-icons/fa";
-import { GiReceiveMoney } from "react-icons/gi";
-import TiltedCard from '../../components/TiltedCard';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+import { auth } from '../../libs/firebase.config';
 import '../../app/globals.css'
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // Mock authentication functions
   const signIn = async (email, password) => {
     setIsLoading(true);
-    // Simulate API call
+    setError('');
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Redirect to home on successful login
+      await signInWithEmailAndPassword(auth, email, password);
       router.push('/home');
     } catch (error) {
       setError('Invalid email or password');
@@ -31,15 +28,18 @@ const SignInPage = () => {
     }
   };
 
-  const signInWithProvider = async (provider) => {
+  const signInWithProvider = async (providerName) => {
     setIsLoading(true);
-    // Simulate API call
+    setError('');
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Redirect to home on successful login
+      const provider = providerName === 'google' ? new GoogleAuthProvider() : new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
       router.push('/home');
     } catch (error) {
-      setError(`Failed to sign in with ${provider}`);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        console.error("Popup Error Full:", error);
+        setError(`Failed to sign in with ${providerName}: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -51,148 +51,162 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen">
-      {/* Image Section */}
-      <div className="hidden lg:flex w-1/2 items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-12">
-        <TiltedCard
-          imageSrc='/Images/hhholographic(1).webp'
-          containerHeight="100vh"
-          containerWidth="50vw"
-          imageHeight="70vh"
-          imageWidth="30vw"
-          rotateAmplitude={12}
-          scaleOnHover={1.2}
-          showMobileWarning={false}
-          showTooltip={false}
-          displayOverlayContent={true}
-        />
+    <div className="flex flex-col md:flex-row min-h-screen w-full bg-[#0a0a0a] text-white font-sans selection:bg-green-500/30">
+      
+      {/* Left: Architectural Typography Section (Sticky) */}
+      <div className="hidden md:flex md:w-[60%] lg:w-[65%] sticky top-0 h-screen flex-col justify-between p-12 overflow-hidden border-r border-[#1a1a1a]">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        
+        <div className="relative z-10">
+          <Link href="/" className="inline-block text-xl font-bold tracking-[0.2em] text-white hover:text-green-400 transition-colors">
+            XPNSR<span className="text-green-400">.</span>
+          </Link>
+        </div>
+
+        <div className="relative z-10 flex flex-col justify-end h-full pb-10">
+          <p className="text-green-400 font-mono text-sm tracking-widest uppercase mb-4 opacity-80">
+            Authentication // Secure Login
+          </p>
+          <h1 className="text-[5rem] lg:text-[7rem] xl:text-[9rem] leading-[0.85] font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-[#333]">
+            ENTER
+            <br />
+            REALITY.
+          </h1>
+        </div>
       </div>
 
-      {/* Signin Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 lg:px-12 bg-white">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="flex items-center space-x-3 mb-6">
-            <GiReceiveMoney className="w-9 h-9 text-white p-1 rounded-md bg-blue-800" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              XPNSR
-            </span>
+      {/* Right: Cardless Form Section (Scrollable if needed) */}
+      <div className="w-full md:w-[40%] lg:w-[35%] min-h-screen bg-[#0a0a0a] flex flex-col relative">
+        <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 py-16 lg:py-0 max-w-lg mx-auto w-full z-10">
+          
+          <div className="md:hidden mb-12">
+            <Link href="/" className="text-xl font-bold tracking-[0.2em] text-white">
+              XPNSR<span className="text-green-400">.</span>
+            </Link>
           </div>
 
-          <h1 className="text-2xl font-bold mb-3 text-gray-800">
-            Welcome Back
-          </h1>
-          <p className="text-gray-500 mb-6 text-base">
-            Sign in to continue tracking your expenses.
+          <h2 className="text-3xl font-light mb-2 tracking-tight">Sign In</h2>
+          <p className="text-[#666] mb-12 text-sm font-mono tracking-wide">
+            Access your financial command center.
           </p>
 
           {error && (
-            <div className="mb-5 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
-              <X className="w-5 h-5 mr-3" />
-              <p className="text-sm">{error}</p>
+            <div className="mb-8 p-4 bg-red-500/10 border-l-2 border-red-500 text-red-400 text-sm font-medium animate-fade-in-up">
+              {error}
             </div>
           )}
 
-          {/* OAuth Buttons */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <button
-              onClick={() => signInWithProvider('google')}
-              disabled={isLoading}
-              className="flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50 space-x-2"
-            >
-              <FaGoogle className="text-gray-600 w-5 h-5" />
-              <span className="text-gray-700">Google</span>
-            </button>
-
-            <button
-              onClick={() => signInWithProvider('github')}
-              disabled={isLoading}
-              className="flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50 space-x-2"
-            >
-              <FaGithub className="text-gray-600 w-5 h-5" />
-              <span className="text-gray-700">GitHub</span>
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative mb-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-4 bg-white text-gray-500 text-sm">
-                or continue with email
-              </span>
-            </div>
-          </div>
-
-          {/* Email Signin Form */}
-          <form onSubmit={handleEmailSignIn} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
+          {/* Minimalist Underline Form */}
+          <form onSubmit={handleEmailSignIn} className="space-y-10 group">
+            <div className="relative">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-800"
+                className="w-full bg-transparent border-0 border-b-2 border-[#333] focus:border-green-400 focus:ring-0 px-0 py-2 text-white placeholder-transparent peer transition-colors rounded-none"
+                placeholder="Email Address"
+                id="email"
                 required
               />
+              <label 
+                htmlFor="email"
+                className="absolute left-0 -top-5 text-xs text-[#666] font-mono uppercase tracking-wider transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-5 peer-focus:text-xs peer-focus:text-green-400 cursor-text"
+              >
+                Email Address
+              </label>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="relative">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-transparent border-0 border-b-2 border-[#333] focus:border-green-400 focus:ring-0 px-0 py-2 text-white placeholder-transparent peer transition-colors rounded-none"
+                placeholder="Password"
+                id="password"
+                required
+              />
+              <label 
+                htmlFor="password"
+                className="absolute left-0 -top-5 text-xs text-[#666] font-mono uppercase tracking-wider transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-5 peer-focus:text-xs peer-focus:text-green-400 cursor-text"
+              >
                 Password
               </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-800"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mt-2">
               <Link 
                 href="/auth/forgot-password" 
-                className="text-blue-800 hover:underline text-sm"
+                className="text-[#666] hover:text-white transition-colors text-xs uppercase font-mono tracking-widest"
               >
-                Forgot password?
+                Forgot Password?
               </Link>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 text-base bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 flex items-center justify-center"
+              className="w-full py-5 bg-white text-black font-bold uppercase tracking-widest hover:bg-green-400 transition-colors flex items-center justify-between px-6 rounded-none disabled:opacity-50 disabled:cursor-not-allowed group-hover:shadow-[0_0_30px_rgba(74,222,128,0.1)] mt-8"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin h-5 w-5" />
+                <span className="flex items-center gap-3"><Loader2 className="animate-spin w-5 h-5" /> Authenticating</span>
               ) : (
-                'Sign In'
+                <>
+                  <span>Initialize Login</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
               )}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-5">
-            Don't have an account?{' '}
-            <Link href="/auth/signup" className="text-blue-800 hover:underline font-medium">
-              Sign up
+          {/* Social Auth (Architectural style) */}
+          <div className="mt-16">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px bg-[#222] flex-1"></div>
+              <span className="text-xs uppercase font-mono tracking-widest text-[#666]">Alternative</span>
+              <div className="h-px bg-[#222] flex-1"></div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => signInWithProvider('google')}
+                disabled={isLoading}
+                className="flex-1 py-4 border border-[#333] flex items-center justify-center hover:border-white hover:bg-white hover:text-black transition-all rounded-none"
+                aria-label="Sign in with Google"
+              >
+                <FaGoogle className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => signInWithProvider('github')}
+                disabled={isLoading}
+                className="flex-1 py-4 border border-[#333] flex items-center justify-center hover:border-white hover:bg-white hover:text-black transition-all rounded-none"
+                aria-label="Sign in with GitHub"
+              >
+                <FaGithub className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <p className="text-xs text-[#666] uppercase font-mono tracking-widest text-center mt-12">
+            No access?{' '}
+            <Link href="/auth/signup" className="text-white hover:text-green-400 transition-colors border-b border-white hover:border-green-400 pb-1 ml-2">
+              Request Entry
             </Link>
           </p>
         </div>
       </div>
+      
+      {/* Animation Styles */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fade-in-up {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.5s ease forwards;
+        }
+      `}} />
     </div>
   );
 };

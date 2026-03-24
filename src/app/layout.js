@@ -1,5 +1,5 @@
 import "./globals.css";
-import { TransactionProvider } from "@/context/transactionContext";
+
 
 export const metadata = {
   title: "Create Next App",
@@ -10,9 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <TransactionProvider>
+  
         {children}
-        </TransactionProvider>
+
       </body>
     </html>
   );
