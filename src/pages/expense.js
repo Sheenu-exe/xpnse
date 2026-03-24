@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Plus, Receipt } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Plus, Receipt, Search } from "lucide-react";
 import AddTransactionModal from "../components/AddExpensesModal";
 import { Header } from "../components/Header";
 import BottomNav from "../components/sidebar";
