@@ -28,24 +28,23 @@ export const Header = () => {
       <div className="flex justify-between items-center mb-6 relative z-50">
         {/* Logo & Brand Name */}
         <div className="flex items-center gap-3">
-          <Image className="p-2 bg-green-800 rounded-lg" width={40} height={40} src={"/logo.svg"} alt="Xpnsr Logo" />
-          <h1 className="text-2xl font-bold text-white tracking-wide">XPNSR</h1>
+          <Image className="object-contain" width={140} height={40} src={"/logo.png"} alt="Xpnsr Logo" />
         </div>
 
         {/* Settings & Profile */}
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsProfileOpen(true)}
-            className="p-1 pl-1.5 pr-4 bg-[#0a0a0a] rounded-full hover:border-green-500/30 transition flex items-center gap-3 border border-[#1a1a1a] shadow-lg group"
+            className="p-1 pl-1.5 pr-4 bg-forest-800 rounded-full hover:bg-forest-700 transition flex items-center gap-3 shadow-luxury group"
           >
-            <div className="w-9 h-9 rounded-full bg-green-900/20 flex items-center justify-center overflow-hidden border border-green-500/30 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-full bg-forest-600 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
               {photoURL ? (
                 <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User className="h-4 w-4 text-green-400" />
+                <User className="h-4 w-4 text-sage" />
               )}
             </div>
-            <span className="text-sm font-bold text-gray-200 hidden sm:block font-mono tracking-tight group-hover:text-white transition-colors">
+            <span className="text-sm font-bold text-cream/90 hidden sm:block font-mono tracking-tight group-hover:text-cream transition-colors">
               {name || "Profile"}
             </span>
           </button>
@@ -59,4 +58,5 @@ export const Header = () => {
     </>
   )
 }
+
 

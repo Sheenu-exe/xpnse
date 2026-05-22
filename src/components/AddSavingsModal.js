@@ -1,0 +1,115 @@
+import { useState } from "react"
+import { X, ArrowRight } from "lucide-react"
+
+export default function AddSavingsModal({ isOpen, onClose, userId, accounts, onTransactionComplete }) {
+  const [type, setType] = useState("deposit")
+  const [accountId, setAccountId] = useState("")
+  const [transferToAccountId, setTransferToAccountId] = useState("")
+  const [amount, setAmount] = useState("")
+  const [note, setNote] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  if (!isOpen) return null
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!accountId) return alert("Select an account")
+    if (type === "transfer" && !transferToAccountId) return alert("Select a destination account")
+    
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/savings/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          type,
+          accountId,
+          transferToAccountId: type === 'transfer' ? transferToAccountId : null,
+          amount: Number(amount),
+          note
+        })
+      })
+      if (response.ok) {
+        onTransactionComplete()
+        onClose()
+      } else {
+        alert("Transaction failed")
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-forest-900 border border-forest-700 w-full max-w-md rounded-luxury p-6 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-cream/50 hover:text-cream">
+          <X className="w-5 h-5" />
+        </button>
+        <h2 className="text-2xl font-display font-bold text-cream mb-6">Manage Capital</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex bg-forest-800 p-1 rounded-xl">
+            {["deposit", "withdrawal", "transfer"].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setType(t)}
+                className={`flex-1 py-2 text-xs font-mono uppercase tracking-widest rounded-lg transition-colors ${
+                  type === t ? "bg-forest-600 text-cream" : "text-cream/50 hover:text-cream/80"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          <div className={type === 'transfer' ? "flex items-center gap-2" : ""}>
+            <div className="flex-1">
+              <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">
+                {type === 'transfer' ? 'From' : 'Account'}
+              </label>
+              <select required value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage outline-none">
+                <option value="">Select...</option>
+                {accounts.map(a => (
+                  <option key={a._id} value={a._id}>{a.name} ({a.currentBalance})</option>
+                ))}
+              </select>
+            </div>
+
+            {type === 'transfer' && (
+              <>
+                <div className="pt-5"><ArrowRight className="text-cream/50 w-5 h-5" /></div>
+                <div className="flex-1">
+                  <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">To</label>
+                  <select required value={transferToAccountId} onChange={e => setTransferToAccountId(e.target.value)} className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage outline-none">
+                    <option value="">Select...</option>
+                    {accounts.filter(a => a._id !== accountId).map(a => (
+                      <option key={a._id} value={a._id}>{a.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">Amount</label>
+            <input type="number" required value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream text-lg font-mono tracking-tighter focus:border-sage focus:ring-1 focus:ring-sage outline-none" />
+          </div>
+          <div>
+            <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">Note / Reference</label>
+            <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Q1 Profit Allocation" className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage focus:ring-1 focus:ring-sage outline-none" />
+          </div>
+
+          <button disabled={isSubmitting} type="submit" className="w-full bg-sage text-forest-900 font-bold py-3 rounded-xl mt-4 hover:bg-sage/90 transition-colors">
+            {isSubmitting ? 'Processing...' : 'Execute'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
