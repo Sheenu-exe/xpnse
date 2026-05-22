@@ -4,6 +4,7 @@ import { Header } from "../components/Header"
 import BottomNav from "../components/sidebar"
 import AddSavingsModal from "../components/AddSavingsModal"
 import CreateAccountModal from "../components/CreateAccountModal"
+import AddTargetModal from "../components/AddTargetModal"
 import { auth } from "@/libs/firebase.config"
 import { PieChart as RechartsPieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Plus, Building2, TrendingUp, ShieldCheck, ArrowUpRight, Zap, PiggyBank, Briefcase, Landmark } from "lucide-react"
@@ -15,6 +16,10 @@ export default function Savings() {
   const [isAddTxModalOpen, setIsAddTxModalOpen] = useState(false)
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false)
   const [currency, setCurrency] = useState("₹")
+  const [targets, setTargets] = useState([])
+  const [activeTargetId, setActiveTargetId] = useState(null)
+  const [isAddTargetModalOpen, setIsAddTargetModalOpen] = useState(false)
+  const [isEditingTarget, setIsEditingTarget] = useState(false)
   const { currentUser } = auth
 
   useEffect(() => {
@@ -35,13 +40,45 @@ export default function Savings() {
   const fetchData = async () => {
     if (!currentUser) return
     try {
-      const accRes = await fetch(`/api/savings/accounts?userId=${currentUser.uid}`)
-      const accData = await accRes.json()
-      setAccounts(accData)
+      const [accRes, txRes, targetsRes] = await Promise.all([
+        fetch(`/api/savings/accounts?userId=${currentUser.uid}`),
+        fetch(`/api/savings/transactions?userId=${currentUser.uid}`),
+        fetch(`/api/savings/targets?userId=${currentUser.uid}`)
+      ]);
+      
+      const [accData, txData, targetsData] = await Promise.all([
+        accRes.json(),
+        txRes.json(),
+        targetsRes.json()
+      ]);
 
-      const txRes = await fetch(`/api/savings/transactions?userId=${currentUser.uid}`)
-      const txData = await txRes.json()
+      setAccounts(accData)
       setTransactions(txData)
+      
+      if (targetsData.length > 0) {
+        setTargets(targetsData)
+        setTargets(prevTargets => {
+          // Inside a setState callback to reliably check activeTargetId without dependency issues
+          return targetsData;
+        });
+        // We ensure we don't lose active tab on re-fetch
+        setActiveTargetId(prevId => {
+          if (!prevId || !targetsData.find(t => t._id === prevId)) {
+            return targetsData[0]._id;
+          }
+          return prevId;
+        });
+      } else {
+        // Create a default target if none exists
+        const createDefault = await fetch('/api/savings/targets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: currentUser.uid, name: "Primary Wealth", amount: 100000 })
+        });
+        const newTarget = await createDefault.json();
+        setTargets([newTarget]);
+        setActiveTargetId(newTarget._id);
+      }
     } catch (err) {
       console.error(err)
     }
@@ -60,8 +97,36 @@ export default function Savings() {
     .filter(tx => tx.type === 'deposit' && new Date(tx.date).getMonth() === currentMonth && new Date(tx.date).getFullYear() === currentYear)
     .reduce((acc, curr) => acc + curr.amount, 0)
 
-  const reserveStatus = liquidCapital > 100000 ? "Strong" : liquidCapital > 50000 ? "Stable" : liquidCapital > 25000 ? "Building" : "Critical"
-  const reserveProgress = Math.min((liquidCapital / 100000) * 100, 100)
+  const activeTarget = targets.find(t => t._id === activeTargetId) || { name: "Target", amount: 100000 }
+  const reserveStatus = totalSavings >= activeTarget.amount ? "Strong" : totalSavings >= (activeTarget.amount * 0.5) ? "Stable" : totalSavings >= (activeTarget.amount * 0.25) ? "Building" : "Critical"
+  const reserveProgress = activeTarget.amount > 0 ? Math.min((totalSavings / activeTarget.amount) * 100, 100) : 100
+
+  const handleUpdateTargetAmount = async (newAmount) => {
+    if(!currentUser || !activeTargetId) return;
+    const oldTargets = [...targets];
+    setTargets(targets.map(t => t._id === activeTargetId ? { ...t, amount: newAmount } : t));
+    try {
+      await fetch(`/api/savings/targets/${activeTargetId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: newAmount })
+      });
+    } catch(err) {
+      setTargets(oldTargets);
+    }
+  }
+
+  const handleDeleteTarget = async (id) => {
+    if(!currentUser) return;
+    try {
+      await fetch(`/api/savings/targets/${id}`, { method: 'DELETE' });
+      const newTargets = targets.filter(t => t._id !== id);
+      setTargets(newTargets);
+      if(activeTargetId === id && newTargets.length > 0) {
+        setActiveTargetId(newTargets[0]._id);
+      }
+    } catch(err) {}
+  }
 
   // --- Chart Data ---
   const COLORS = ['#A7D1AE', '#BCDDF0', '#85a48b', '#4a6d51', '#FFF2E6'];
@@ -139,14 +204,81 @@ export default function Savings() {
               <p className="text-xs font-mono text-cream/40">FDs, SIPs, & Stocks</p>
             </div>
 
-            {/* AI Insights Card */}
-            <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury lg:col-span-2">
-              <p className="font-mono text-xs text-sage uppercase tracking-widest mb-2 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" /> Liquid Reserve Status: {reserveStatus}
-              </p>
-              <div className="flex items-end justify-between mb-2">
-                <h3 className="text-xl font-display font-bold text-cream tracking-tight">
-                  Target: {currency}100,000
+            {/* Target Status Card */}
+            <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury lg:col-span-2 flex flex-col">
+              
+              {/* Target Tabs */}
+              <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                {targets.map(t => (
+                  <button 
+                    key={t._id} 
+                    onClick={() => setActiveTargetId(t._id)}
+                    className={`px-4 py-2 rounded-lg text-sm font-bold tracking-wide whitespace-nowrap transition-all border ${
+                      activeTargetId === t._id ? "bg-sage text-forest-900 border-sage" : "bg-forest-900 text-cream/50 border-forest-700 hover:text-cream hover:border-forest-600"
+                    }`}
+                  >
+                    {t.name}
+                  </button>
+                ))}
+                <button 
+                  onClick={() => setIsAddTargetModalOpen(true)}
+                  className="p-2 rounded-lg bg-forest-900 text-cream/50 hover:text-sage hover:border-sage border border-forest-700 transition-colors flex-shrink-0"
+                  title="Create New Target"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex justify-between items-start mb-2">
+                <p className="font-mono text-xs text-sage uppercase tracking-widest flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4" /> {activeTarget.name} Status: {reserveStatus}
+                </p>
+                {targets.length > 1 && (
+                  <button 
+                    onClick={() => handleDeleteTarget(activeTargetId)}
+                    className="text-xs text-red-400/70 hover:text-red-400 font-mono underline"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-end justify-between mb-2 mt-auto">
+                <h3 className="text-xl font-display font-bold text-cream tracking-tight flex items-center gap-2">
+                  Target: 
+                  {isEditingTarget ? (
+                    <div className="flex items-center gap-1">
+                      <span>{currency}</span>
+                      <input 
+                        type="number" 
+                        value={activeTarget.amount} 
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setTargets(targets.map(t => t._id === activeTargetId ? { ...t, amount: val } : t));
+                        }}
+                        onBlur={() => {
+                          setIsEditingTarget(false);
+                          handleUpdateTargetAmount(activeTarget.amount);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            setIsEditingTarget(false);
+                            handleUpdateTargetAmount(activeTarget.amount);
+                          }
+                        }}
+                        className="bg-forest-900 border border-forest-700 rounded-md px-2 py-1 text-sm w-28 text-cream focus:outline-none focus:border-sage"
+                        autoFocus
+                      />
+                    </div>
+                  ) : (
+                    <span 
+                      onClick={() => setIsEditingTarget(true)} 
+                      className="cursor-pointer hover:text-sage transition-colors border-b border-dashed border-cream/30 hover:border-sage"
+                      title="Click to edit target amount"
+                    >
+                      {currency}{activeTarget.amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </span>
+                  )}
                 </h3>
                 <span className="text-sm font-mono text-cream/50">{Math.round(reserveProgress)}%</span>
               </div>
@@ -160,7 +292,7 @@ export default function Savings() {
                 </div>
               </div>
               <p className="text-xs text-cream/40 leading-relaxed max-w-md">
-                Your liquid reserve health is classified as <strong>{reserveStatus}</strong>. You are {(100 - reserveProgress).toFixed(1)}% away from your primary emergency fund target.
+                Your <strong>{activeTarget.name}</strong> status is classified as <strong>{reserveStatus}</strong>. You are {(100 - reserveProgress).toFixed(1)}% away from this target.
               </p>
             </div>
           </div>
@@ -272,6 +404,13 @@ export default function Savings() {
         userId={currentUser?.uid} 
         accounts={accounts}
         onTransactionComplete={fetchData} 
+      />
+
+      <AddTargetModal 
+        isOpen={isAddTargetModalOpen} 
+        onClose={() => setIsAddTargetModalOpen(false)} 
+        userId={currentUser?.uid} 
+        onTargetCreated={fetchData} 
       />
     </BottomNav>
   )

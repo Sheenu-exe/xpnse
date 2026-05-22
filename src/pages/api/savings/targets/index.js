@@ -1,5 +1,5 @@
-import dbConnect from '../../../libs/mongodb';
-import Subscription from '../../../models/Subscription';
+import dbConnect from '../../../../libs/mongodb';
+import SavingsTarget from '../../../../models/SavingsTarget';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -11,19 +11,19 @@ export default async function handler(req, res) {
         const { userId } = req.query;
         let query = {};
         if (userId) query.userId = userId;
-        const subscriptions = await Subscription.find(query).sort({ nextBillingDate: 1 });
-        res.status(200).json(subscriptions);
+        const targets = await SavingsTarget.find(query).sort({ createdAt: 1 });
+        res.status(200).json(targets);
       } catch (err) {
-        res.status(500).json({ error: "Failed to fetch subscriptions" });
+        res.status(500).json({ error: "Failed to fetch targets" });
       }
       break;
     
     case 'POST':
       try {
-        const subscription = await Subscription.create(req.body);
-        res.status(201).json(subscription);
+        const target = await SavingsTarget.create(req.body);
+        res.status(201).json(target);
       } catch (err) {
-        res.status(400).json({ error: "Failed to save subscription" });
+        res.status(400).json({ error: "Failed to create target" });
       }
       break;
 

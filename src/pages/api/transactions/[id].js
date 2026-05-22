@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const { method } = req;
   const { id } = req.query;
   
-  await dbConnect();
+  try { await dbConnect(); } catch (err) { return res.status(500).json({ error: 'Database connection failed' }); }
 
   switch (method) {
     case 'DELETE':

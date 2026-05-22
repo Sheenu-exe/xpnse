@@ -3,7 +3,7 @@ import SavingsAccount from '../../../../models/SavingsAccount';
 
 export default async function handler(req, res) {
   const { method } = req;
-  await dbConnect();
+  try { await dbConnect(); } catch (err) { return res.status(500).json({ error: 'Database connection failed' }); }
 
   switch (method) {
     case 'GET':
