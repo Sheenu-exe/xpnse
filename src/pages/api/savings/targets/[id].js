@@ -1,5 +1,5 @@
-import dbConnect from '../../../../../libs/mongodb';
-import SavingsTarget from '../../../../../models/SavingsTarget';
+import dbConnect from '../../../../libs/mongodb';
+import SavingsTarget from '../../../../models/SavingsTarget';
 
 export default async function handler(req, res) {
   const { method } = req;
