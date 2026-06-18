@@ -37,9 +37,18 @@ export default async function handler(req, res) {
       },
     };
 
+    const undoTransactionDeclaration = {
+      name: "undo_last_transaction",
+      description: "Reverses and deletes the most recently logged transaction. Call this when the user says they made a mistake, didn't actually spend that, or wants to undo their last entry.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {},
+      },
+    };
+
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
-      tools: [{ functionDeclarations: [logTransactionDeclaration] }]
+      tools: [{ functionDeclarations: [logTransactionDeclaration, undoTransactionDeclaration] }]
     });
 
     const accountListStr = accounts && accounts.length > 0 
@@ -58,9 +67,10 @@ export default async function handler(req, res) {
     ${accountListStr}
 
     AUTONOMOUS ACTIONS:
-    If the user tells you they spent or received money, you have the ability to log it using the log_transaction tool.
-    HOWEVER, you MUST know which account they used. If they don't specify, DO NOT guess. Ask them which account they used.
-    Whenever you ask them to choose an account, you MUST append exactly this string at the very end of your response: |||OPTIONS: ${accountNames}
+    - If the user tells you they spent or received money, you have the ability to log it using the log_transaction tool.
+      HOWEVER, you MUST know which account they used. If they don't specify, DO NOT guess. Ask them which account they used.
+      Whenever you ask them to choose an account, you MUST append exactly this string at the very end of your response: |||OPTIONS: ${accountNames}
+    - If the user says they made a mistake, wants to undo, or didn't actually spend that money, use the undo_last_transaction tool.
 
     Use this context to accurately answer their questions.
     `;
@@ -125,6 +135,30 @@ export default async function handler(req, res) {
         }
         
         return res.status(200).json({ reply: `Done! I've logged the ${args.type} of $${args.amount} for ${args.category}. Your DB is updated.` });
+      } else if (call.name === "undo_last_transaction") {
+        if (!userId) return res.status(400).json({ reply: "I need you to log in properly before I can touch your DB." });
+        
+        await dbConnect();
+        
+        const lastTx = await Transaction.findOne({ userId }).sort({ _id: -1 });
+        if (!lastTx) {
+          return res.status(200).json({ reply: "I couldn't find any recent transactions to undo." });
+        }
+
+        if (lastTx.accountId) {
+          const account = await SavingsAccount.findById(lastTx.accountId);
+          if (account) {
+            if (lastTx.type === "expense") {
+              account.currentBalance += lastTx.amount;
+            } else {
+              account.currentBalance -= lastTx.amount;
+            }
+            await account.save();
+          }
+        }
+
+        await Transaction.findByIdAndDelete(lastTx._id);
+        return res.status(200).json({ reply: `Got it. I've reversed the ${lastTx.type} of $${lastTx.amount} for ${lastTx.category} and scrubbed it from your ledger.` });
       }
     }
 
