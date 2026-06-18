@@ -135,20 +135,6 @@ const Dashboard = () => {
         <div className="flex flex-col relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 pb-32">
           <Header />
 
-          {/* Runway Hero Section (Full Width Runway Card) */}
-          <div className="w-full mt-8 mb-8 bg-forest-800 rounded-luxury p-8 md:p-14 shadow-luxury relative overflow-hidden group transform hover:scale-[1.01] transition-transform duration-500">
-            <div className="absolute inset-0 bg-gradient-to-br from-forest-700/50 to-forest-900/10 z-0"></div>
-            <div className="absolute top-0 right-0 w-96 h-96 bg-sage/10 blur-[80px] rounded-full transform translate-x-32 -translate-y-32 z-0"></div>
-            
-            <div className="relative z-10">
-              <p className="font-mono text-sage uppercase tracking-[0.2em] text-xs font-bold mb-4">You can operate for</p>
-              <h1 className="font-display text-7xl md:text-9xl font-black text-cream leading-[0.85] tracking-tight mb-4 drop-shadow-xl">
-                {runwayMonths} <span className="text-4xl md:text-6xl text-cream/70 font-light tracking-tighter">months</span>
-              </h1>
-              <p className="font-mono text-cream/50 uppercase tracking-widest text-sm font-bold">Without new clients.</p>
-            </div>
-          </div>
-
           {/* AI Executive Briefing Panel */}
           <div className="mb-8 w-full bg-forest-800/80 rounded-luxury p-6 shadow-luxury-inner relative overflow-hidden">
             <p className="text-[10px] font-mono text-powder uppercase tracking-widest mb-4 flex items-center gap-2">
