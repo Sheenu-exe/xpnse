@@ -21,6 +21,7 @@ export default function Savings() {
   const [activeTargetId, setActiveTargetId] = useState(null)
   const [isAddTargetModalOpen, setIsAddTargetModalOpen] = useState(false)
   const [isEditingTarget, setIsEditingTarget] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const { currentUser } = auth
 
   useEffect(() => {
@@ -80,8 +81,11 @@ export default function Savings() {
         setTargets([newTarget]);
         setActiveTargetId(newTarget._id);
       }
+      }
     } catch (err) {
       console.error(err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -157,7 +161,7 @@ export default function Savings() {
           <div className="mt-4 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h2 className="text-4xl md:text-5xl font-display font-extrabold tracking-tighter text-cream drop-shadow-lg">
-                Wealth.
+                Stash.
               </h2>
               <p className="text-cream/50 mt-2 font-mono text-sm tracking-wide">
                 Track your reserves, accounts, and financial growth.
@@ -172,13 +176,6 @@ export default function Savings() {
                 <Building2 className="w-4 h-4 text-cream/50 group-hover:text-cream transition-colors" />
                 <span>New Asset</span>
               </button>
-              <button 
-                onClick={() => setIsAddTxModalOpen(true)}
-                className="w-full sm:w-auto bg-sage hover:bg-sage/90 border border-sage/50 p-3 px-6 rounded-xl transition-all shadow-luxury text-forest-900 font-bold tracking-wide flex items-center justify-center gap-2 group"
-              >
-                <ArrowUpRight className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Move Capital</span>
-              </button>
             </div>
           </div>
 
@@ -188,9 +185,13 @@ export default function Savings() {
             <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury relative overflow-hidden group">
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-sage/10 rounded-full blur-2xl group-hover:bg-sage/20 transition-all"></div>
               <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-2">Available Cash</p>
-              <h3 className="text-3xl md:text-4xl font-display font-bold text-sage tracking-tighter mb-2">
-                {currency}{liquidCapital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
+              {isLoading ? (
+                <div className="h-10 w-32 bg-forest-700 rounded-lg animate-pulse mb-2"></div>
+              ) : (
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-sage tracking-tighter mb-2">
+                  {currency}{liquidCapital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h3>
+              )}
               <p className="text-xs font-mono text-cream/40 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 text-sage" /> Highly liquid capital
               </p>
@@ -199,9 +200,13 @@ export default function Savings() {
             {/* Locked Assets Card */}
             <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury">
               <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-2">Locked Assets (-)</p>
-              <h3 className="text-3xl md:text-4xl font-display font-bold text-cream tracking-tighter mb-2">
-                {currency}{lockedAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
+              {isLoading ? (
+                <div className="h-10 w-32 bg-forest-700 rounded-lg animate-pulse mb-2"></div>
+              ) : (
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-cream tracking-tighter mb-2">
+                  {currency}{lockedAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h3>
+              )}
               <p className="text-xs font-mono text-cream/40">FDs, SIPs, & Stocks</p>
             </div>
 
@@ -308,7 +313,18 @@ export default function Savings() {
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {accounts.length > 0 ? accounts.map((acc) => (
+                {isLoading ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="animate-pulse bg-forest-800/50 border border-forest-700 rounded-2xl p-5">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-10 h-10 bg-forest-700 rounded-xl"></div>
+                        <div className="h-6 w-16 bg-forest-700 rounded-md"></div>
+                      </div>
+                      <div className="h-6 w-32 bg-forest-700 rounded mb-2"></div>
+                      <div className="h-8 w-40 bg-forest-700 rounded"></div>
+                    </div>
+                  ))
+                ) : accounts.length > 0 ? accounts.map((acc) => (
                   <div key={acc._id} className="bg-forest-800/50 hover:bg-forest-800 border border-forest-700 rounded-2xl p-5 transition-all shadow-luxury group cursor-pointer relative overflow-hidden">
                     <div className="flex justify-between items-start mb-4">
                       <div className="p-2 bg-forest-900 rounded-xl border border-forest-700/50 shadow-luxury-inner">

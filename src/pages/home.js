@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userBudget, setUserBudget] = useState("0");
   const [currency, setCurrency] = useState("₹");
+  const [isLoading, setIsLoading] = useState(true);
   const { currentUser } = auth;
 
   useEffect(() => {
@@ -41,6 +42,8 @@ const Dashboard = () => {
         setTransactions(data);
       } catch (error) {
         console.error("Failed to fetch transactions:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -144,13 +147,19 @@ const Dashboard = () => {
               <div className="absolute top-0 right-0 w-64 h-64 bg-sage/5 blur-[60px] rounded-full group-hover:bg-sage/10 transition-all duration-700 transform translate-x-10 -translate-y-10"></div>
               
               <div className="flex flex-col h-full justify-between relative z-10">
-                <span className="font-mono uppercase tracking-[0.15em] text-xs text-cream/60 font-bold">Available Cash</span>
+                <span className="font-mono uppercase tracking-[0.15em] text-xs text-cream/60 font-bold">Your Bag</span>
                 
                 <div className="mt-16 md:mt-24">
-                  <span className="text-sage text-4xl font-light pr-1 align-top">{currency}</span>
-                  <span className="font-display text-7xl md:text-8xl font-black tracking-tighter text-cream drop-shadow-md">
-                    {formatCurrency(totalBalance)}
-                  </span>
+                  {isLoading ? (
+                    <div className="h-20 w-64 bg-forest-600/50 rounded-xl animate-pulse"></div>
+                  ) : (
+                    <>
+                      <span className="text-sage text-4xl font-light pr-1 align-top">{currency}</span>
+                      <span className="font-display text-7xl md:text-8xl font-black tracking-tighter text-cream drop-shadow-md">
+                        {formatCurrency(totalBalance)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -159,28 +168,46 @@ const Dashboard = () => {
             <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
               
               <div className="flex-1 bg-forest-800 rounded-luxury p-8 shadow-luxury-inner flex flex-col justify-center relative overflow-hidden hover:bg-forest-700/80 transition-colors">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mb-2 font-bold">Reserve Inbound</span>
-                <div className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cream mb-1">
-                  <span className="text-sage pr-1">+</span>{currency}{formatCurrency(monthlyIncome)}
-                </div>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mb-2 font-bold">Money In</span>
+                {isLoading ? (
+                  <div className="h-12 w-32 bg-forest-700 rounded-lg animate-pulse"></div>
+                ) : (
+                  <div className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cream mb-1">
+                    <span className="text-sage pr-1">+</span>{currency}{formatCurrency(monthlyIncome)}
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 bg-forest-800 rounded-luxury p-8 shadow-luxury-inner flex flex-col justify-center relative overflow-hidden hover:bg-forest-700/80 transition-colors">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mb-2 font-bold">Operational Burn</span>
-                <div className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cream mb-1">
-                  <span className="text-cream/50 pr-1">-</span>{currency}{formatCurrency(monthlySpending)}
-                </div>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mb-2 font-bold">Money Out</span>
+                {isLoading ? (
+                  <div className="h-12 w-32 bg-forest-700 rounded-lg animate-pulse"></div>
+                ) : (
+                  <div className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cream mb-1">
+                    <span className="text-cream/50 pr-1">-</span>{currency}{formatCurrency(monthlySpending)}
+                  </div>
+                )}
               </div>
 
             </div>
 
             {/* Expenditure Matrix (Categories) */}
             <div className="md:col-span-12 lg:col-span-6 bg-forest-800 rounded-luxury p-8 md:p-10 shadow-luxury">
-              <h3 className="font-display text-2xl font-bold text-cream tracking-tight mb-2">Resource Allocation</h3>
+              <h3 className="font-display text-2xl font-bold text-cream tracking-tight mb-2">Where it goes</h3>
               <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-10">Trailing 30 Days</p>
               
               <div className="flex flex-col gap-6">
-                {categorySpending.length > 0 ? (
+                {isLoading ? (
+                  [...Array(3)].map((_, i) => (
+                    <div key={i} className="animate-pulse flex flex-col gap-2">
+                      <div className="flex justify-between">
+                        <div className="h-4 w-20 bg-forest-700 rounded"></div>
+                        <div className="h-4 w-12 bg-forest-700 rounded"></div>
+                      </div>
+                      <div className="h-2.5 w-full bg-forest-700 rounded-full"></div>
+                    </div>
+                  ))
+                ) : categorySpending.length > 0 ? (
                   categorySpending.map((cat, idx) => (
                     <div key={idx} className="relative group">
                       <div className="flex justify-between items-end mb-2 relative z-10">
@@ -191,7 +218,6 @@ const Dashboard = () => {
                         </div>
                       </div>
                       
-                      {/* Premium thick progress bar */}
                       <div className="h-2.5 w-full bg-forest-900 rounded-full overflow-hidden relative z-10">
                         <div 
                           className="h-full bg-sage rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(167,209,174,0.3)]" 
@@ -202,7 +228,7 @@ const Dashboard = () => {
                   ))
                 ) : (
                   <div className="py-12 flex flex-col items-center justify-center">
-                    <p className="text-sm font-mono uppercase text-cream/30 tracking-widest">Awaiting Ledger Data</p>
+                    <p className="text-sm font-mono uppercase text-cream/30 tracking-widest">No spends yet</p>
                   </div>
                 )}
               </div>
@@ -210,11 +236,24 @@ const Dashboard = () => {
 
             {/* Recent Ledger Extract */}
             <div className="md:col-span-12 lg:col-span-6 bg-forest-800 rounded-luxury p-8 md:p-10 shadow-luxury">
-              <h3 className="font-display text-2xl font-bold text-cream tracking-tight mb-2">Ledger Extract</h3>
-              <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-8">Real-time chronolog</p>
+              <h3 className="font-display text-2xl font-bold text-cream tracking-tight mb-2">Recent Drops</h3>
+              <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-8">Latest Moves</p>
 
               <div className="space-y-3">
-                {recentTransactions.length > 0 ? (
+                {isLoading ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="animate-pulse bg-forest-700/50 p-5 rounded-2xl flex justify-between items-center">
+                      <div className="flex items-center gap-5">
+                        <div className="w-2 h-2 rounded-full bg-forest-600"></div>
+                        <div>
+                          <div className="h-4 w-24 bg-forest-600 rounded mb-2"></div>
+                          <div className="h-3 w-16 bg-forest-600 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="h-5 w-16 bg-forest-600 rounded"></div>
+                    </div>
+                  ))
+                ) : recentTransactions.length > 0 ? (
                   recentTransactions.map((tx) => (
                     <div key={tx.id} className="flex justify-between items-center bg-forest-700 hover:bg-forest-600 transition-colors p-5 rounded-2xl group cursor-pointer shadow-luxury-inner">
                       <div className="flex items-center gap-5">
@@ -231,7 +270,7 @@ const Dashboard = () => {
                   ))
                 ) : (
                   <div className="py-12 flex flex-col items-center justify-center">
-                    <p className="text-sm font-mono uppercase text-cream/30 tracking-widest">No telemetry recorded</p>
+                    <p className="text-sm font-mono uppercase text-cream/30 tracking-widest">Nothing to show yet</p>
                   </div>
                 )}
               </div>

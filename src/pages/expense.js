@@ -11,6 +11,7 @@ export default function Expenses() {
   const [activeTab, setActiveTab] = useState("expenses")
   const [transactions, setTransactions] = useState([])
   const [accounts, setAccounts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -31,6 +32,8 @@ export default function Expenses() {
       setAccounts(accData)
     } catch (error) {
       console.error("Failed to fetch data:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -92,8 +95,9 @@ export default function Expenses() {
     <BottomNav activePage={activeTab} setActivePage={setActiveTab}>
       <div className="min-h-screen bg-forest-900 text-cream selection:bg-sage/30 relative font-sans">
         
-        {/* Subtle noise texture overlay */}
-        <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-overlay"></div>
+        {/* Deep Forest Gradient Spotlights */}
+        <div className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-sage/5 blur-[150px] rounded-full pointer-events-none mix-blend-screen opacity-50"></div>
+        <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-powder/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen opacity-30"></div>
 
         <div className="flex flex-col relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 pb-32">
           <Header />
@@ -102,142 +106,110 @@ export default function Expenses() {
           <div className="mt-4 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h2 className="text-4xl md:text-5xl font-display font-extrabold tracking-tighter text-cream drop-shadow-lg">
-                Master Ledger.
+                Spends.
               </h2>
               <p className="text-cream/50 mt-2 font-mono text-sm tracking-wide">
-                Complete transaction telemetry
+                Every drop, logged.
               </p>
             </div>
             
-            <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cream/40" />
-                <input
-                  type="text"
-                  placeholder="Query ledger..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-forest-800 border border-forest-600 rounded-xl py-3 pl-11 pr-4 text-sm text-cream placeholder-cream/30 focus:border-sage focus:ring-1 focus:ring-sage transition-all shadow-luxury-inner"
-                />
-              </div>
-              <button 
-                onClick={() => { setEditTxData(null); setIsModalOpen(true); }}
-                className="bg-sage hover:bg-sage/90 border border-sage/50 p-3 px-6 rounded-xl transition-all shadow-luxury text-forest-900 font-bold tracking-wide flex items-center justify-center gap-2 group flex-shrink-0"
-              >
-                <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span className="hidden md:block">New Entry</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Bank Accounts Overview */}
-          <div className="mb-8">
-            <h3 className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-4">Account Balances</h3>
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-              {accounts.map(acc => (
-                <div key={acc._id} className="min-w-[200px] bg-forest-800/80 border border-forest-700 rounded-xl p-4 flex-shrink-0 shadow-luxury">
-                  <p className="text-xs font-mono text-cream/50 uppercase truncate">{acc.name}</p>
-                  <p className="text-xl font-bold text-cream mt-1">{currency}{acc.currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  <p className="text-[10px] text-sage mt-2 uppercase tracking-widest">{acc.accountType}</p>
-                </div>
-              ))}
-              {accounts.length === 0 && (
-                <div className="min-w-[200px] border border-dashed border-forest-700 rounded-xl p-4 flex items-center justify-center">
-                  <p className="text-xs font-mono text-cream/40">No accounts found</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Filters & Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-between sm:items-center">
-            <div className="flex gap-2">
-              {["all", "expense", "income"].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setFilterType(filter)}
-                  className={`px-6 py-2 rounded-full uppercase font-mono text-xs tracking-widest transition-all ${
-                    filterType === filter 
-                      ? "bg-sage/10 text-sage border border-sage/30" 
-                      : "bg-forest-800 text-cream/50 border border-forest-600 hover:text-cream"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
             <button 
-              onClick={downloadCSV}
-              className="px-6 py-2 rounded-full uppercase font-mono text-xs tracking-widest transition-all bg-forest-800 text-cream/50 border border-forest-600 hover:text-cream hover:border-cream/50 flex items-center gap-2"
+              onClick={() => { setEditTxData(null); setIsModalOpen(true); }}
+              className="bg-sage hover:bg-sage/90 border border-sage/50 p-3 px-6 rounded-xl transition-all shadow-luxury text-forest-900 font-bold tracking-wide flex items-center justify-center gap-2 group w-full md:w-auto"
             >
-              <Download className="w-4 h-4" />
-              Export Data
+              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+              <span>New Entry</span>
             </button>
           </div>
 
-          {/* Ledger Table Container */}
-          <div className="bg-forest-800 rounded-luxury p-2 md:p-6 shadow-luxury overflow-hidden border border-forest-700/50">
-            {filteredTransactions.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-forest-700">
-                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest">Type</th>
-                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest">Details</th>
-                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest">Date</th>
-                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest text-right">Amount</th>
-                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTransactions.map((tx) => (
-                      <tr 
-                        key={tx.id} 
-                        className="border-b border-forest-700/50 hover:bg-forest-700/30 transition-colors group"
-                      >
-                        <td className="py-5 px-4">
-                          <div className={`p-2 w-fit rounded-xl flex items-center justify-center ${
-                            tx.type === "expense" ? "bg-forest-900 border border-forest-700 text-cream/50 group-hover:text-cream" : "bg-sage/10 text-sage border border-sage/20"
-                          }`}>
+          {/* Desktop/Tablet Table View */}
+          <div className="hidden md:block bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury shadow-luxury overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-forest-600 bg-forest-900/50">
+                    <th className="py-4 px-6 text-xs font-mono text-cream/50 uppercase tracking-widest font-semibold">Asset/Type</th>
+                    <th className="py-4 px-4 text-xs font-mono text-cream/50 uppercase tracking-widest font-semibold">Title & Category</th>
+                    <th className="py-4 px-4 text-xs font-mono text-cream/50 uppercase tracking-widest font-semibold">Date</th>
+                    <th className="py-4 px-4 text-xs font-mono text-cream/50 uppercase tracking-widest font-semibold text-right">Impact</th>
+                    <th className="py-4 px-6 text-xs font-mono text-cream/50 uppercase tracking-widest font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-forest-600/50">
+                  {isLoading ? (
+                    [...Array(5)].map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="py-5 px-6"><div className="h-4 w-16 bg-forest-700 rounded"></div></td>
+                        <td className="py-5 px-4"><div className="h-4 w-32 bg-forest-700 rounded mb-2"></div><div className="h-3 w-20 bg-forest-700 rounded"></div></td>
+                        <td className="py-5 px-4"><div className="h-4 w-24 bg-forest-700 rounded"></div></td>
+                        <td className="py-5 px-4 text-right"><div className="h-5 w-20 bg-forest-700 rounded ml-auto"></div></td>
+                        <td className="py-5 px-6 text-right"><div className="h-8 w-16 bg-forest-700 rounded ml-auto"></div></td>
+                      </tr>
+                    ))
+                  ) : filteredTransactions.length > 0 ? (
+                    filteredTransactions.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-forest-700/30 transition-colors group">
+                        <td className="py-5 px-6">
+                          <div className={`p-2 w-fit rounded-xl ${tx.type === "expense" ? "bg-forest-900 border border-forest-700 text-cream/50" : "bg-sage/10 text-sage"}`}>
                             {tx.type === "expense" ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                           </div>
                         </td>
                         <td className="py-5 px-4">
                           <p className="text-base font-bold text-cream tracking-wide">{tx.title}</p>
-                          <p className="text-xs font-mono text-cream/50 uppercase mt-1">
-                            {tx.category} {tx.accountId && accounts.find(a => a._id === tx.accountId) ? `• ${accounts.find(a => a._id === tx.accountId).name}` : ''}
-                          </p>
+                          <p className="text-xs font-mono text-cream/50 uppercase mt-1">{tx.category}</p>
                         </td>
-                        <td className="py-5 px-4">
-                          <p className="text-sm text-cream/70 font-mono tracking-tight">{new Date(tx.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                        <td className="py-5 px-4 text-sm text-cream/70 font-mono">
+                          {new Date(tx.date).toLocaleDateString()}
                         </td>
-                        <td className="py-5 px-4 text-right">
-                          <div className={`text-lg font-bold font-mono tracking-tighter ${tx.type === "expense" ? "text-cream" : "text-sage"}`}>
+                        <td className="py-5 px-4 text-right font-mono font-bold">
+                          <span className={tx.type === "expense" ? "text-cream" : "text-sage"}>
                             {tx.type === "expense" ? "-" : "+"}{currency}{Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                          </div>
+                          </span>
                         </td>
-                        <td className="py-5 px-4 text-right">
-                          <button 
-                            onClick={() => { setEditTxData(tx); setIsModalOpen(true); }}
-                            className="text-xs font-mono uppercase tracking-widest text-cream/30 hover:text-sage transition-colors p-2"
-                            title="Edit Entry"
-                          >
-                            Edit
-                          </button>
+                        <td className="py-5 px-6 text-right">
+                          <button onClick={() => { setEditTxData(tx); setIsModalOpen(true); }} className="text-xs font-mono uppercase text-cream/30 hover:text-sage">Edit</button>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  ) : (
+                    <tr><td colSpan="5" className="py-24 text-center text-cream/40 font-mono">No telemetry found</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {isLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-forest-800/80 border border-forest-600 p-5 rounded-2xl">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-forest-600"></div>
+                      <div className="h-4 w-24 bg-forest-600 rounded"></div>
+                    </div>
+                    <div className="h-5 w-16 bg-forest-600 rounded"></div>
+                  </div>
+                  <div className="h-3 w-32 bg-forest-600 rounded mb-4"></div>
+                  <div className="h-8 w-full bg-forest-700 rounded-lg"></div>
+                </div>
+              ))
+            ) : filteredTransactions.length > 0 ? (
+              filteredTransactions.map((tx) => (
+                <div key={tx.id} className="bg-forest-800/80 border border-forest-600 p-5 rounded-2xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-mono text-cream/50">{tx.category}</span>
+                    <span className={`font-mono font-bold ${tx.type === "expense" ? "text-cream" : "text-sage"}`}>
+                      {tx.type === "expense" ? "-" : "+"}{currency}{Number(tx.amount).toLocaleString()}
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-cream mb-4">{tx.title}</h4>
+                  <button onClick={() => { setEditTxData(tx); setIsModalOpen(true); }} className="w-full py-2 bg-forest-900 border border-forest-700 rounded-lg text-xs font-mono uppercase tracking-widest text-cream/50">Edit Entry</button>
+                </div>
+              ))
             ) : (
-              <div className="py-24 flex flex-col items-center justify-center">
-                <Zap className="w-10 h-10 text-forest-600 mb-4" />
-                <p className="text-sm font-mono uppercase text-cream/40 tracking-widest">No telemetry found</p>
-                {searchQuery && (
-                  <p className="text-xs text-cream/30 mt-2">Try adjusting your query</p>
-                )}
-              </div>
+              <div className="py-24 text-center text-cream/40 font-mono">No telemetry found</div>
             )}
           </div>
           

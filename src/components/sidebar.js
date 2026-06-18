@@ -7,9 +7,9 @@ const BottomNav = ({ children }) => {
 
   const navItems = [
     { label: "Dashboard", icon: PieChart, key: "dashboard", src: "/home" },
-    { label: "Ledger", icon: Receipt, key: "expenses", src: "/expense" },
-    { label: "Wealth", icon: PiggyBank, key: "savings", src: "/savings" },
-    { label: "Subscriptions", icon: CreditCard, key: "subscriptions", src: "/subscriptions" },
+    { label: "Spends", icon: Receipt, key: "expenses", src: "/expense" },
+    { label: "Stash", icon: PiggyBank, key: "savings", src: "/savings" },
+    { label: "Subs", icon: CreditCard, key: "subscriptions", src: "/subscriptions" },
     { label: "Analytics", icon: TrendingUp, key: "analytics", src: "/analytics" },
   ]
 
