@@ -75,7 +75,6 @@ export default function LandingPage() {
           <p className="text-gray-400">Your financial data stays securely encypted and entirely private. We never share your data.</p>
         </div>
       </div>
-      </div>
       
       {/* App Interface Showcase */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pb-32 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
