@@ -15,6 +15,7 @@ export default function Savings() {
   const [transactions, setTransactions] = useState([])
   const [isAddTxModalOpen, setIsAddTxModalOpen] = useState(false)
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false)
+  const [editAccountData, setEditAccountData] = useState(null)
   const [currency, setCurrency] = useState("₹")
   const [targets, setTargets] = useState([])
   const [activeTargetId, setActiveTargetId] = useState(null)
@@ -165,7 +166,7 @@ export default function Savings() {
             
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
               <button 
-                onClick={() => setIsAddAccountModalOpen(true)}
+                onClick={() => { setEditAccountData(null); setIsAddAccountModalOpen(true); }}
                 className="w-full sm:w-auto bg-forest-800 hover:bg-forest-700 border border-forest-600 p-3 px-6 rounded-xl transition-all shadow-luxury text-cream font-bold tracking-wide flex items-center justify-center gap-2 group"
               >
                 <Building2 className="w-4 h-4 text-cream/50 group-hover:text-cream transition-colors" />
@@ -313,9 +314,18 @@ export default function Savings() {
                       <div className="p-2 bg-forest-900 rounded-xl border border-forest-700/50 shadow-luxury-inner">
                         {getAccountIcon(acc.accountType)}
                       </div>
-                      <span className="text-[10px] font-mono uppercase tracking-widest bg-forest-900 px-2 py-1 rounded-md text-cream/40 border border-forest-700">
-                        {acc.accountType}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditAccountData(acc); setIsAddAccountModalOpen(true); }}
+                          className="text-[10px] font-mono uppercase tracking-widest bg-forest-900 px-2 py-1 rounded-md text-cream/40 border border-forest-700 hover:text-sage transition-colors"
+                          title="Edit Asset"
+                        >
+                          Edit
+                        </button>
+                        <span className="text-[10px] font-mono uppercase tracking-widest bg-forest-900 px-2 py-1 rounded-md text-cream/40 border border-forest-700">
+                          {acc.accountType}
+                        </span>
+                      </div>
                     </div>
                     <h4 className="text-lg font-bold text-cream tracking-wide group-hover:text-sage transition-colors">{acc.name}</h4>
                     <p className="text-2xl font-display font-bold text-cream/90 mt-1">
@@ -393,9 +403,10 @@ export default function Savings() {
 
       <CreateAccountModal 
         isOpen={isAddAccountModalOpen} 
-        onClose={() => setIsAddAccountModalOpen(false)} 
+        onClose={() => { setIsAddAccountModalOpen(false); setEditAccountData(null); }} 
         userId={currentUser?.uid} 
         onAccountCreated={fetchData} 
+        editData={editAccountData}
       />
 
       <AddSavingsModal 

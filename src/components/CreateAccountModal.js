@@ -1,12 +1,31 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 
-export default function CreateAccountModal({ isOpen, onClose, userId, onAccountCreated }) {
+export default function CreateAccountModal({ isOpen, onClose, userId, onAccountCreated, editData = null }) {
   const [name, setName] = useState("")
   const [accountType, setAccountType] = useState("Bank Account")
   const [customType, setCustomType] = useState("")
   const [currentBalance, setCurrentBalance] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (editData && isOpen) {
+      setName(editData.name || "");
+      if (["Bank Account", "FD", "SIP", "Stocks"].includes(editData.accountType)) {
+        setAccountType(editData.accountType);
+        setCustomType("");
+      } else {
+        setAccountType("Other");
+        setCustomType(editData.accountType || "");
+      }
+      setCurrentBalance(editData.currentBalance || "");
+    } else if (isOpen) {
+      setName("");
+      setAccountType("Bank Account");
+      setCustomType("");
+      setCurrentBalance("");
+    }
+  }, [editData, isOpen]);
 
   if (!isOpen) return null
 
@@ -21,17 +40,28 @@ export default function CreateAccountModal({ isOpen, onClose, userId, onAccountC
     setIsSubmitting(true)
     const finalType = accountType === "Other" ? (customType || "Custom") : accountType;
     try {
-      const response = await fetch('/api/savings/accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          name,
-          accountType: finalType,
-          liquidityType: getLiquidity(accountType),
-          currentBalance: Number(currentBalance) || 0
+      const payload = {
+        userId,
+        name,
+        accountType: finalType,
+        liquidityType: getLiquidity(accountType),
+        currentBalance: Number(currentBalance) || 0
+      };
+
+      let response;
+      if (editData) {
+        response = await fetch(`/api/savings/accounts/${editData._id || editData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         })
-      })
+      } else {
+        response = await fetch('/api/savings/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+      }
       if (response.ok) {
         onAccountCreated()
         onClose()
@@ -49,7 +79,7 @@ export default function CreateAccountModal({ isOpen, onClose, userId, onAccountC
         <button onClick={onClose} className="absolute top-4 right-4 text-cream/50 hover:text-cream">
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-2xl font-display font-bold text-cream mb-6">New Asset</h2>
+        <h2 className="text-2xl font-display font-bold text-cream mb-6">{editData ? 'Edit Asset' : 'New Asset'}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -80,7 +110,7 @@ export default function CreateAccountModal({ isOpen, onClose, userId, onAccountC
           </div>
 
           <button disabled={isSubmitting} type="submit" className="w-full bg-sage text-forest-900 font-bold py-3 rounded-xl mt-4 hover:bg-sage/90 transition-colors">
-            {isSubmitting ? 'Creating...' : 'Create Asset'}
+            {isSubmitting ? 'Saving...' : editData ? 'Save Changes' : 'Create Asset'}
           </button>
         </form>
       </div>

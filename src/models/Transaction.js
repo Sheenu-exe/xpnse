@@ -8,6 +8,7 @@ const TransactionSchema = new mongoose.Schema({
   date: String,
   description: String,
   userId: String,
+  accountId: String,
 });
 
 export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);

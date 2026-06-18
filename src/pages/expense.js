@@ -204,7 +204,9 @@ export default function Expenses() {
                         </td>
                         <td className="py-5 px-4">
                           <p className="text-base font-bold text-cream tracking-wide">{tx.title}</p>
-                          <p className="text-xs font-mono text-cream/50 uppercase mt-1">{tx.category}</p>
+                          <p className="text-xs font-mono text-cream/50 uppercase mt-1">
+                            {tx.category} {tx.accountId && accounts.find(a => a._id === tx.accountId) ? `• ${accounts.find(a => a._id === tx.accountId).name}` : ''}
+                          </p>
                         </td>
                         <td className="py-5 px-4">
                           <p className="text-sm text-cream/70 font-mono tracking-tight">{new Date(tx.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
@@ -244,6 +246,7 @@ export default function Expenses() {
             onClose={() => { setIsModalOpen(false); setEditTxData(null); }}
             editData={editTxData}
             onComplete={fetchData}
+            accounts={accounts}
           />
         </div>
       </div>

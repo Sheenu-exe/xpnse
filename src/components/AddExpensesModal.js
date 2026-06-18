@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import api from "@/libs/api";
 import { auth } from "@/libs/firebase.config";
 
-const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) => {
+const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete, accounts = [] }) => {
   const { currentUser } = auth; // 👈 get logged-in user
 
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) =
     amount: "",
     category: "",
     date: "",
+    accountId: "",
     description: "",
   });
 
@@ -25,6 +26,7 @@ const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) =
         amount: editData.amount || "",
         category: editData.category || "",
         date: editData.date ? new Date(editData.date).toISOString().split('T')[0] : "",
+        accountId: editData.accountId || "",
         description: editData.description || "",
       });
     } else if (isOpen) {
@@ -34,6 +36,7 @@ const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) =
         amount: "",
         category: "",
         date: "",
+        accountId: "",
         description: "",
       });
     }
@@ -79,6 +82,7 @@ const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) =
         amount: "",
         category: "",
         date: "",
+        accountId: "",
         description: "",
       });
 
@@ -184,6 +188,21 @@ const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) =
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2 ml-1 font-mono">Link Bank Account (Optional)</label>
+                <select
+                  value={formData.accountId}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, accountId: e.target.value }))}
+                  className="w-full px-5 py-3.5 bg-[#141414] border border-neutral-800 rounded-xl focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none text-white transition-all text-sm font-mono appearance-none"
+                >
+                  <option value="" className="text-gray-600">No Account Linked</option>
+                  {accounts.map((acc) => (
+                    <option key={acc._id} value={acc._id}>{acc.name} ({acc.accountType})</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-gray-500 mt-2 ml-1 font-mono">If linked, this entry will automatically update the account's balance.</p>
               </div>
 
               <div className="md:col-span-2">
