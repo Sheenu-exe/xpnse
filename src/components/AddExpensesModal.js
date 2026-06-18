@@ -1,11 +1,11 @@
 "use client";
 
 import { X, ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/libs/api";
 import { auth } from "@/libs/firebase.config";
 
-const AddTransactionModal = ({ isOpen, onClose }) => {
+const AddTransactionModal = ({ isOpen, onClose, editData = null, onComplete }) => {
   const { currentUser } = auth; // 👈 get logged-in user
 
   const [formData, setFormData] = useState({
@@ -16,6 +16,28 @@ const AddTransactionModal = ({ isOpen, onClose }) => {
     date: "",
     description: "",
   });
+
+  useEffect(() => {
+    if (editData && isOpen) {
+      setFormData({
+        type: editData.type || "expense",
+        title: editData.title || "",
+        amount: editData.amount || "",
+        category: editData.category || "",
+        date: editData.date ? new Date(editData.date).toISOString().split('T')[0] : "",
+        description: editData.description || "",
+      });
+    } else if (isOpen) {
+      setFormData({
+        type: "expense",
+        title: "",
+        amount: "",
+        category: "",
+        date: "",
+        description: "",
+      });
+    }
+  }, [editData, isOpen]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -41,11 +63,15 @@ const AddTransactionModal = ({ isOpen, onClose }) => {
         ...formData,
         amount: Number(formData.amount),
         date: formData.date,
-        createdAt: new Date(),
+        createdAt: editData ? editData.createdAt : new Date(),
         userId: currentUser.uid, // 👈 attach user ID here!
       };
 
-      await api.post("/transactions", newTransaction);
+      if (editData) {
+        await api.put(`/transactions/${editData._id || editData.id}`, newTransaction);
+      } else {
+        await api.post("/transactions", newTransaction);
+      }
 
       setFormData({
         type: "expense",
@@ -55,6 +81,8 @@ const AddTransactionModal = ({ isOpen, onClose }) => {
         date: "",
         description: "",
       });
+
+      if (onComplete) onComplete();
 
       onClose();
     } catch (err) {
@@ -71,13 +99,13 @@ const AddTransactionModal = ({ isOpen, onClose }) => {
         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-[50px] rounded-full pointer-events-none"></div>
 
         <div className="flex justify-between items-center p-6 border-b border-neutral-800/50 bg-[#141414] relative z-10">
-          <h2 className="text-xl font-bold text-white tracking-wide">New Entry</h2>
+          <h2 className="text-xl font-bold text-white tracking-wide">{editData ? "Edit Entry" : "New Entry"}</h2>
           <button onClick={onClose} className="p-2 bg-neutral-800/50 rounded-full hover:bg-neutral-700 text-gray-400 hover:text-white transition">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form className="p-6 md:p-8 space-y-6 relative z-10" onSubmit={handleSubmit}>
+        <form className="p-6 md:p-8 space-y-6 relative z-10 pb-32" onSubmit={handleSubmit}>
           {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm font-mono">{error}</div>}
 
           <div className="flex gap-4">
@@ -178,7 +206,7 @@ const AddTransactionModal = ({ isOpen, onClose }) => {
                 isSubmitting ? "bg-green-600 cursor-not-allowed opacity-50" : "bg-green-500 hover:bg-green-400 hover:shadow-[0_0_30px_rgba(74,222,128,0.4)]"
               }`}
             >
-              {isSubmitting ? "Finalizing..." : "Submit Ledger"}
+              {isSubmitting ? "Finalizing..." : editData ? "Save Changes" : "Submit Ledger"}
             </button>
           </div>
         </form>

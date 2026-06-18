@@ -10,11 +10,29 @@ import AddTransactionModal from "../components/AddExpensesModal"
 export default function Expenses() {
   const [activeTab, setActiveTab] = useState("expenses")
   const [transactions, setTransactions] = useState([])
+  const [accounts, setAccounts] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editTxData, setEditTxData] = useState(null)
   const [currency, setCurrency] = useState("₹")
   const { currentUser } = auth
+
+  const fetchData = async () => {
+    if (!currentUser) return;
+    try {
+      const [txRes, accRes] = await Promise.all([
+        api.get(`/transactions?userId=${currentUser.uid}`),
+        fetch(`/api/savings/accounts?userId=${currentUser.uid}`)
+      ]);
+      const txData = txRes.data.map((tx) => ({ ...tx, id: tx._id }))
+      const accData = await accRes.json()
+      setTransactions(txData)
+      setAccounts(accData)
+    } catch (error) {
+      console.error("Failed to fetch data:", error)
+    }
+  }
 
   useEffect(() => {
     if (!currentUser) return;
@@ -28,17 +46,7 @@ export default function Expenses() {
       }
     }
 
-    const fetchTransactions = async () => {
-      try {
-        const response = await api.get(`/transactions?userId=${currentUser.uid}`)
-        const data = response.data.map((tx) => ({ ...tx, id: tx._id }))
-        setTransactions(data)
-      } catch (error) {
-        console.error("Failed to fetch transactions:", error)
-      }
-    }
-
-    fetchTransactions()
+    fetchData()
   }, [currentUser])
 
   const filteredTransactions = transactions
@@ -113,12 +121,31 @@ export default function Expenses() {
                 />
               </div>
               <button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => { setEditTxData(null); setIsModalOpen(true); }}
                 className="bg-sage hover:bg-sage/90 border border-sage/50 p-3 px-6 rounded-xl transition-all shadow-luxury text-forest-900 font-bold tracking-wide flex items-center justify-center gap-2 group flex-shrink-0"
               >
                 <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 <span className="hidden md:block">New Entry</span>
               </button>
+            </div>
+          </div>
+
+          {/* Bank Accounts Overview */}
+          <div className="mb-8">
+            <h3 className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-4">Account Balances</h3>
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {accounts.map(acc => (
+                <div key={acc._id} className="min-w-[200px] bg-forest-800/80 border border-forest-700 rounded-xl p-4 flex-shrink-0 shadow-luxury">
+                  <p className="text-xs font-mono text-cream/50 uppercase truncate">{acc.name}</p>
+                  <p className="text-xl font-bold text-cream mt-1">{currency}{acc.currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className="text-[10px] text-sage mt-2 uppercase tracking-widest">{acc.accountType}</p>
+                </div>
+              ))}
+              {accounts.length === 0 && (
+                <div className="min-w-[200px] border border-dashed border-forest-700 rounded-xl p-4 flex items-center justify-center">
+                  <p className="text-xs font-mono text-cream/40">No accounts found</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -159,6 +186,7 @@ export default function Expenses() {
                       <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest">Details</th>
                       <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest">Date</th>
                       <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest text-right">Amount</th>
+                      <th className="py-4 px-4 font-mono text-xs text-cream/50 uppercase tracking-widest text-right"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -186,6 +214,15 @@ export default function Expenses() {
                             {tx.type === "expense" ? "-" : "+"}{currency}{Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </div>
                         </td>
+                        <td className="py-5 px-4 text-right">
+                          <button 
+                            onClick={() => { setEditTxData(tx); setIsModalOpen(true); }}
+                            className="text-xs font-mono uppercase tracking-widest text-cream/30 hover:text-sage transition-colors p-2"
+                            title="Edit Entry"
+                          >
+                            Edit
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -204,7 +241,9 @@ export default function Expenses() {
           
           <AddTransactionModal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => { setIsModalOpen(false); setEditTxData(null); }}
+            editData={editTxData}
+            onComplete={fetchData}
           />
         </div>
       </div>

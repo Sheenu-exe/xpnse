@@ -63,13 +63,13 @@ const OnboardingPage = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-black text-white selection:bg-green-500/30 font-sans overflow-hidden items-center justify-center">
+    <div className="flex h-screen w-screen bg-black text-white selection:bg-green-500/30 font-sans overflow-hidden items-center justify-center px-4">
       {/* Background blur element */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-green-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="relative z-10 w-full max-w-lg px-8 py-10 bg-neutral-900/40 border border-neutral-800 backdrop-blur-md rounded-3xl shadow-2xl">
-        <h1 className="text-3xl font-bold mb-2 tracking-tight">Welcome to XPNSR</h1>
-        <p className="text-gray-400 mb-8">Let's set up your profile to personalize your dashboard.</p>
+      <div className="relative z-10 w-full max-w-lg px-6 py-8 md:px-8 md:py-10 bg-neutral-900/40 border border-neutral-800 backdrop-blur-md rounded-3xl shadow-2xl overflow-y-auto max-h-[90vh]">
+        <h1 className="text-3xl font-bold mb-2 tracking-tight text-center md:text-left">Welcome to XPNSR</h1>
+        <p className="text-gray-400 mb-8 text-center md:text-left">Let's set up your profile to personalize your dashboard.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -86,7 +86,7 @@ const OnboardingPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Preferred Currency
