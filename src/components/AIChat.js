@@ -70,14 +70,14 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
       {/* Floating Toggle Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className={\`fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 p-4 rounded-full shadow-[0_0_30px_rgba(167,209,174,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center \${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'} bg-gradient-to-br from-sage to-emerald-600 border border-sage/50 group\`}
+        className={`fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 p-4 rounded-full shadow-[0_0_30px_rgba(167,209,174,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'} bg-gradient-to-br from-sage to-emerald-600 border border-sage/50 group`}
       >
         <Sparkles className="w-6 h-6 text-forest-900 group-hover:animate-pulse" />
       </button>
 
       {/* Chat Window */}
       <div 
-        className={\`fixed inset-0 md:inset-auto md:bottom-10 md:right-10 z-50 md:w-[400px] md:h-[600px] bg-forest-900/95 backdrop-blur-2xl md:rounded-[30px] border border-forest-700 shadow-luxury transition-all duration-300 ease-out flex flex-col \${isOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-95 pointer-events-none'}\`}
+        className={`fixed inset-0 md:inset-auto md:bottom-10 md:right-10 z-50 md:w-[400px] md:h-[600px] bg-forest-900/95 backdrop-blur-2xl md:rounded-[30px] border border-forest-700 shadow-luxury transition-all duration-300 ease-out flex flex-col ${isOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-95 pointer-events-none'}`}
       >
         {/* Header */}
         <div className="p-5 border-b border-forest-700 flex justify-between items-center bg-forest-800/50 md:rounded-t-[30px]">
@@ -103,12 +103,12 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
         {/* Message Area */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-hide flex flex-col">
           {messages.map((msg, i) => (
-            <div key={i} className={\`flex max-w-[85%] \${msg.role === 'user' ? 'self-end' : 'self-start'}\`}>
-              <div className={\`flex items-start gap-2 \${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}\`}>
-                <div className={\`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1 \${msg.role === 'user' ? 'bg-forest-700' : 'bg-sage/20 border border-sage/30'}\`}>
+            <div key={i} className={`flex max-w-[85%] ${msg.role === 'user' ? 'self-end' : 'self-start'}`}>
+              <div className={`flex items-start gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${msg.role === 'user' ? 'bg-forest-700' : 'bg-sage/20 border border-sage/30'}`}>
                   {msg.role === 'user' ? <User className="w-3 h-3 text-cream/70" /> : <Bot className="w-3 h-3 text-sage" />}
                 </div>
-                <div className={\`p-3 rounded-2xl text-sm font-medium leading-relaxed shadow-sm \${msg.role === 'user' ? 'bg-forest-700 text-cream rounded-tr-sm' : 'bg-forest-800 border border-forest-700 text-cream/90 rounded-tl-sm'}\`}>
+                <div className={`p-3 rounded-2xl text-sm font-medium leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-forest-700 text-cream rounded-tr-sm' : 'bg-forest-800 border border-forest-700 text-cream/90 rounded-tl-sm'}`}>
                   {msg.text}
                 </div>
               </div>
