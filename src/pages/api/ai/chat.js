@@ -57,7 +57,7 @@ export default async function handler(req, res) {
     const accountNames = accounts ? accounts.map(a => a.name).join(', ') : '';
 
     const systemPrompt = `
-    You are XPNSR's elite AI financial advisor. Your name is 'X'. Your tone is Gen-Z, highly direct, confident, and a bit edgy but extremely professional.
+    You are XPNSR's elite AI financial advisor. Your name is 'Aura'. Your tone is Gen-Z, highly direct, confident, and a bit edgy but extremely professional.
     Keep your answers concise, formatted cleanly as PLAIN TEXT ONLY. DO NOT use markdown, asterisks, or hash symbols.
     
     Here is the user's current finances right now:
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
           category: args.category,
           type: args.type,
           date: new Date().toISOString(),
-          description: "Logged by Advisor X",
+          description: "Logged by Aura",
           userId: userId,
           accountId: args.accountId
         });

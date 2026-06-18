@@ -8,7 +8,7 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
   const [accounts, setAccounts] = useState([]);
   const [chatOptions, setChatOptions] = useState([]);
   const [messages, setMessages] = useState([
-    { role: 'ai', text: "Yo! I'm X, your AI financial advisor. Ask me anything about your bag, burn rate, or if you can afford that new drop." }
+    { role: 'ai', text: "Yo! I'm Aura, your AI financial advisor. Ask me anything about your bag, burn rate, or if you can afford that new drop." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -103,7 +103,7 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
               <Sparkles className="w-5 h-5 text-forest-900" />
             </div>
             <div>
-              <h3 className="font-bold text-cream tracking-wide">Advisor X</h3>
+              <h3 className="font-bold text-cream tracking-wide">Aura</h3>
               <p className="text-[10px] font-mono text-sage uppercase tracking-widest flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-sage animate-pulse"></span> Online
               </p>
