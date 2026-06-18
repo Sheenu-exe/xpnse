@@ -70,14 +70,14 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
       {/* Floating Toggle Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 p-4 rounded-full shadow-[0_0_30px_rgba(167,209,174,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'} bg-gradient-to-br from-sage to-emerald-600 border border-sage/50 group`}
+        className={`fixed bottom-24 right-6 md:bottom-10 md:right-10 z-[110] p-4 rounded-full shadow-[0_0_30px_rgba(167,209,174,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'} bg-gradient-to-br from-sage to-emerald-600 border border-sage/50 group`}
       >
         <Sparkles className="w-6 h-6 text-forest-900 group-hover:animate-pulse" />
       </button>
 
       {/* Chat Window */}
       <div 
-        className={`fixed inset-0 md:inset-auto md:bottom-10 md:right-10 z-50 md:w-[400px] md:h-[600px] bg-forest-900/95 backdrop-blur-2xl md:rounded-[30px] border border-forest-700 shadow-luxury transition-all duration-300 ease-out flex flex-col ${isOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-95 pointer-events-none'}`}
+        className={`fixed inset-0 md:inset-auto md:bottom-10 md:right-10 z-[110] md:w-[400px] md:h-[600px] bg-forest-900/95 backdrop-blur-2xl md:rounded-[30px] border border-forest-700 shadow-luxury transition-all duration-300 ease-out flex flex-col ${isOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-95 pointer-events-none'}`}
       >
         {/* Header */}
         <div className="p-5 border-b border-forest-700 flex justify-between items-center bg-forest-800/50 md:rounded-t-[30px]">
