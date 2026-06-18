@@ -81,7 +81,6 @@ export default function Savings() {
         setTargets([newTarget]);
         setActiveTargetId(newTarget._id);
       }
-      }
     } catch (err) {
       console.error(err)
     } finally {
