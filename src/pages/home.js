@@ -135,19 +135,6 @@ const Dashboard = () => {
         <div className="flex flex-col relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 pb-32">
           <Header />
 
-          {/* AI Executive Briefing Panel */}
-          <div className="mb-8 w-full bg-forest-800/80 rounded-luxury p-6 shadow-luxury-inner relative overflow-hidden">
-            <p className="text-[10px] font-mono text-powder uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-powder animate-pulse"></span> Executive Briefing
-            </p>
-            <div className="flex flex-col gap-3">
-              {aiInsights.map((insight, i) => (
-                <p key={i} className="text-sm md:text-lg font-medium text-cream/90 tracking-wide font-sans leading-relaxed">
-                  {insight}
-                </p>
-              ))}
-            </div>
-          </div>
 
           {/* Editorial Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -250,6 +237,20 @@ const Dashboard = () => {
               </div>
             </div>
 
+          </div>
+
+          {/* AI Executive Briefing Panel */}
+          <div className="mt-6 w-full bg-forest-800/80 rounded-luxury p-6 shadow-luxury-inner relative overflow-hidden">
+            <p className="text-[10px] font-mono text-powder uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-powder animate-pulse"></span> Executive Briefing
+            </p>
+            <div className="flex flex-col gap-3">
+              {aiInsights.map((insight, i) => (
+                <p key={i} className="text-sm md:text-lg font-medium text-cream/90 tracking-wide font-sans leading-relaxed">
+                  {insight}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
       </div>
