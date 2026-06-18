@@ -3,8 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X, Send, User, Bot, Loader2 } from 'lucide-react';
 
-export default function AIChat({ transactions, totalBalance, monthlyIncome, monthlySpending }) {
+export default function AIChat({ transactions, totalBalance, monthlyIncome, monthlySpending, userId }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [chatOptions, setChatOptions] = useState([]);
   const [messages, setMessages] = useState([
     { role: 'ai', text: "Yo! I'm X, your AI financial advisor. Ask me anything about your bag, burn rate, or if you can afford that new drop." }
   ]);
@@ -20,16 +22,26 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, chatOptions]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  useEffect(() => {
+    if (userId) {
+      fetch(`/api/savings/accounts?userId=${userId}`)
+        .then(res => res.json())
+        .then(data => setAccounts(data))
+        .catch(err => console.error(err));
+    }
+  }, [userId]);
 
-    const userText = input.trim();
+  const handleSend = async (e, overrideText = null) => {
+    if (e) e.preventDefault();
+    const textToSend = overrideText || input;
+    if (!textToSend.trim() || isLoading) return;
+
     setInput('');
+    setChatOptions([]);
     
-    const newMessages = [...messages, { role: 'user', text: userText }];
+    const newMessages = [...messages, { role: 'user', text: textToSend }];
     setMessages(newMessages);
     setIsLoading(true);
 
@@ -46,7 +58,9 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newMessages,
-          context: contextStr
+          context: contextStr,
+          userId,
+          accounts
         })
       });
 
@@ -54,6 +68,9 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
       
       if (data.reply) {
         setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
+        if (data.options) {
+          setChatOptions(data.options);
+        }
       } else if (data.error) {
         setMessages(prev => [...prev, { role: 'ai', text: "Error: " + data.error + (data.reply ? ' - ' + data.reply : '') }]);
       }
@@ -124,6 +141,21 @@ export default function AIChat({ transactions, totalBalance, monthlyIncome, mont
                  <span className="w-1.5 h-1.5 bg-sage/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
                  <span className="w-1.5 h-1.5 bg-sage/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                </div>
+            </div>
+          )}
+          
+          {/* Options area */}
+          {chatOptions.length > 0 && !isLoading && (
+            <div className="flex flex-wrap gap-2 mt-2 ml-8">
+              {chatOptions.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(null, opt)}
+                  className="px-4 py-2 bg-sage/10 hover:bg-sage/20 border border-sage/30 text-sage rounded-full text-xs font-mono uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  {opt}
+                </button>
+              ))}
             </div>
           )}
           <div ref={messagesEndRef} />

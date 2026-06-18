@@ -309,6 +309,7 @@ const Dashboard = () => {
           totalBalance={totalBalance} 
           monthlyIncome={monthlyIncome} 
           monthlySpending={monthlySpending} 
+          userId={currentUser?.uid}
         />
       </div>
     </BottomNav>

@@ -1,4 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import dbConnect from "@/libs/mongodb";
+import Transaction from "@/models/Transaction";
+import SavingsAccount from "@/models/SavingsAccount";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -14,21 +17,52 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, context } = req.body;
+    const { messages, context, userId, accounts } = req.body;
     
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const logTransactionDeclaration = {
+      name: "log_transaction",
+      description: "Logs a new expense or income transaction for the user. Call this ONLY when the user explicitly tells you they spent or received money and you have all required parameters.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          amount: { type: SchemaType.NUMBER, description: "The numeric transaction amount." },
+          category: { type: SchemaType.STRING, description: "The category (e.g. Food, Transport, Salary)." },
+          type: { type: SchemaType.STRING, description: "Must be exactly 'expense' or 'income'." },
+          title: { type: SchemaType.STRING, description: "A short 1-3 word title." },
+          accountId: { type: SchemaType.STRING, description: "The precise ID of the account to deduct/add to." }
+        },
+        required: ["amount", "category", "type", "title", "accountId"],
+      },
+    };
+
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      tools: [{ functionDeclarations: [logTransactionDeclaration] }]
+    });
+
+    const accountListStr = accounts && accounts.length > 0 
+      ? accounts.map(a => `${a.name} (ID: ${a._id})`).join('\n    ')
+      : "No accounts found.";
+    const accountNames = accounts ? accounts.map(a => a.name).join(', ') : '';
 
     const systemPrompt = `
-    You are XPNSR's elite AI financial advisor. Your name is 'X'. Your tone is Gen-Z, highly direct, confident, and a bit edgy but extremely professional and helpful. You do not give legal advice, but you give amazing mathematical and practical financial advice.
-    Keep your answers concise, formatted cleanly as PLAIN TEXT ONLY.
-    CRITICAL: DO NOT use any markdown formatting. DO NOT use asterisks (*), hash symbols (#), or bold text. Return strictly plain text.
-    Use slang like "bag", "stash", "burn rate", "W", "L" sparingly but effectively.
+    You are XPNSR's elite AI financial advisor. Your name is 'X'. Your tone is Gen-Z, highly direct, confident, and a bit edgy but extremely professional.
+    Keep your answers concise, formatted cleanly as PLAIN TEXT ONLY. DO NOT use markdown, asterisks, or hash symbols.
     
-    Here is the absolute truth about the user's current finances right now:
+    Here is the user's current finances right now:
     ${context}
 
-    Use this context to accurately answer their questions. If they ask if they can afford something, do the math based on their Total Balance and Monthly Income/Spending.
+    The user has the following bank accounts:
+    ${accountListStr}
+
+    AUTONOMOUS ACTIONS:
+    If the user tells you they spent or received money, you have the ability to log it using the log_transaction tool.
+    HOWEVER, you MUST know which account they used. If they don't specify, DO NOT guess. Ask them which account they used.
+    Whenever you ask them to choose an account, you MUST append exactly this string at the very end of your response: |||OPTIONS: ${accountNames}
+
+    Use this context to accurately answer their questions.
     `;
 
     // The chat history format for Gemini
@@ -55,10 +89,58 @@ export default async function handler(req, res) {
     const latestMessage = messages[messages.length - 1].text;
     const result = await chat.sendMessage(latestMessage);
     const response = await result.response;
+    
+    const functionCalls = response.functionCalls();
+    
+    if (functionCalls && functionCalls.length > 0) {
+      const call = functionCalls[0];
+      if (call.name === "log_transaction") {
+        if (!userId) return res.status(400).json({ reply: "I need you to log in properly before I can touch your DB." });
+        
+        await dbConnect();
+        const args = call.args;
+        
+        // Add transaction
+        const newTx = new Transaction({
+          title: args.title,
+          amount: args.amount,
+          category: args.category,
+          type: args.type,
+          date: new Date().toISOString(),
+          description: "Logged by Advisor X",
+          userId: userId,
+          accountId: args.accountId
+        });
+        await newTx.save();
+
+        // Update account balance
+        const account = await SavingsAccount.findById(args.accountId);
+        if (account) {
+          if (args.type === "expense") {
+            account.currentBalance -= args.amount;
+          } else {
+            account.currentBalance += args.amount;
+          }
+          await account.save();
+        }
+        
+        return res.status(200).json({ reply: `Done! I've logged the ${args.type} of $${args.amount} for ${args.category}. Your DB is updated.` });
+      }
+    }
+
     let text = response.text();
     text = text.replace(/[*#`]/g, '');
 
-    return res.status(200).json({ reply: text });
+    // Parse out options if present
+    let options = null;
+    if (text.includes("|||OPTIONS:")) {
+      const parts = text.split("|||OPTIONS:");
+      text = parts[0].trim();
+      const optsStr = parts[1].trim();
+      options = optsStr.split(',').map(o => o.trim()).filter(o => o.length > 0);
+    }
+
+    return res.status(200).json({ reply: text, options });
 
   } catch (error) {
     console.error("AI Chat Error:", error);
