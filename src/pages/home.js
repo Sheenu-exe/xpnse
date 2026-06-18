@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Wallet, Receipt, TrendingUp, TrendingDown, Save, ArrowUpRight, ArrowDownRight, Activity, Zap, Play } from "lucide-react";
 import BottomNav from "../components/sidebar";
 import { Header } from "../components/Header";
+import AIChat from "../components/AIChat";
 import api from "@/libs/api";
 import { auth } from "@/libs/firebase.config";
 
@@ -15,6 +16,8 @@ const Dashboard = () => {
   const [userBudget, setUserBudget] = useState("0");
   const [currency, setCurrency] = useState("₹");
   const [isLoading, setIsLoading] = useState(true);
+  const [aiInsights, setAiInsights] = useState(["Awaiting AI telemetry..."]);
+  const [hasFetchedAi, setHasFetchedAi] = useState(false);
   const { currentUser } = auth;
 
   useEffect(() => {
@@ -106,23 +109,31 @@ const Dashboard = () => {
     return (totalBalance / monthlySpending).toFixed(1);
   }, [totalBalance, monthlySpending]);
 
-  const aiInsights = useMemo(() => {
-    if (transactions.length === 0) return ["Awaiting more telemetry to generate insights..."];
-    let msgs = [];
-    
-    const savingsRate = monthlyIncome > 0 ? ((monthlySavings) / monthlyIncome) * 100 : 0;
-    if (savingsRate > 20) msgs.push(`Reserve increased phenomenally. You are capturing ${savingsRate.toFixed(0)}% of your inbound capital.`);
-    else if (savingsRate > 0) msgs.push(`Reserve improved modestly. Capital capture rate is at ${savingsRate.toFixed(0)}%.`);
-    else if (monthlyIncome > 0 && monthlySpending > monthlyIncome) msgs.push(`Deficit warning. Operational burn exceeded revenue by ${currency}${formatCurrency(monthlySpending - monthlyIncome)}.`);
-
-    if (categorySpending.length > 0) {
-      const topCat = categorySpending[0];
-      if (topCat.percentage > 40) msgs.push(`Attention: '${topCat.category}' overhead constitutes an outsized ${topCat.percentage.toFixed(0)}% of total burn.`);
-    }
-
-    if (msgs.length === 0) msgs.push("Operating efficiently. No major anomalies detected.");
-    return msgs;
-  }, [monthlyIncome, monthlySavings, monthlySpending, categorySpending, currency, transactions.length]);
+  useEffect(() => {
+    const fetchInsights = async () => {
+      if (transactions.length === 0 || hasFetchedAi) return;
+      try {
+        const res = await fetch('/api/ai/insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transactions,
+            totalBalance,
+            monthlyIncome,
+            monthlySpending
+          })
+        });
+        const data = await res.json();
+        if (data.insights) {
+          setAiInsights(data.insights);
+          setHasFetchedAi(true);
+        }
+      } catch (err) {
+        console.error("Failed to fetch AI insights", err);
+      }
+    };
+    fetchInsights();
+  }, [transactions, hasFetchedAi, totalBalance, monthlyIncome, monthlySpending]);
 
   return (
     <BottomNav activePage={activeTab} setActivePage={setActiveTab}>
@@ -292,6 +303,13 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+        
+        <AIChat 
+          transactions={transactions} 
+          totalBalance={totalBalance} 
+          monthlyIncome={monthlyIncome} 
+          monthlySpending={monthlySpending} 
+        />
       </div>
     </BottomNav>
   );
