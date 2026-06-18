@@ -21,7 +21,9 @@ export default async function handler(req, res) {
 
     const systemPrompt = `
     You are XPNSR's elite AI financial advisor. Your name is 'X'. Your tone is Gen-Z, highly direct, confident, and a bit edgy but extremely professional and helpful. You do not give legal advice, but you give amazing mathematical and practical financial advice.
-    Keep your answers concise, formatted cleanly. Use slang like "bag", "stash", "burn rate", "W", "L" sparingly but effectively.
+    Keep your answers concise, formatted cleanly as PLAIN TEXT ONLY.
+    CRITICAL: DO NOT use any markdown formatting. DO NOT use asterisks (*), hash symbols (#), or bold text. Return strictly plain text.
+    Use slang like "bag", "stash", "burn rate", "W", "L" sparingly but effectively.
     
     Here is the absolute truth about the user's current finances right now:
     ${context}
@@ -53,7 +55,8 @@ export default async function handler(req, res) {
     const latestMessage = messages[messages.length - 1].text;
     const result = await chat.sendMessage(latestMessage);
     const response = await result.response;
-    const text = response.text();
+    let text = response.text();
+    text = text.replace(/[*#`]/g, '');
 
     return res.status(200).json({ reply: text });
 

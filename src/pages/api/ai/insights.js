@@ -36,13 +36,15 @@ export default async function handler(req, res) {
     Recent Transactions: ${recentSpends}
 
     Based on this data, provide exactly 3 short, punchy financial insights or warnings (maximum 1-2 sentences each). 
-    Do NOT use markdown. Do NOT number them. Just return them separated by a newline character (\\n).
+    CRITICAL INSTRUCTION: Do NOT use markdown. Do NOT number them. Do NOT use asterisks (*), hash symbols (#), or bold text. Return strictly plain text.
+    Just return them separated by a newline character (\\n).
     Focus on burn rate, weird spending patterns, or congratulating them on saving. Use slang sparingly but effectively (e.g., "bag", "burn rate", "stash", "W").
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    let text = response.text();
+    text = text.replace(/[*#`]/g, '');
 
     const insightsArray = text.split('\n').map(i => i.trim()).filter(i => i.length > 0).slice(0, 3);
 
