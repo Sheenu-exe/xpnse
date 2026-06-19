@@ -16,41 +16,18 @@ const BottomNav = ({ children }) => {
   ]
 
   return (
-    <div className="flex flex-col bg-forest-900 min-h-screen">
+    <div className="flex flex-col min-h-screen">
       {/* Dynamic Content with extra padding so dock doesn't hide text at the bottom */}
       <div className="flex-1 pb-28">{children}</div>
 
       {/* Floating Bottom Navigation */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex justify-center items-center pointer-events-none w-[90%] md:w-auto">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex justify-center items-center w-[90%] md:w-auto">
         
-        {/* Desktop Dock (Always expanded) */}
-        <div className="hidden md:flex w-fit bg-forest-800/90 backdrop-blur-2xl p-2 px-6 rounded-luxury justify-center gap-10 shadow-luxury pointer-events-auto items-center">
-          {navItems.map((item) => {
-            const isActive = pathname === item.src
-            return (
-              <Link
-                href={item.src}
-                key={item.key}
-                className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all group ${
-                  isActive ? "text-sage" : "text-cream/50 hover:text-cream/80"
-                }`}
-              >
-                <div className={`p-1.5 rounded-xl transition-all ${isActive ? "bg-sage/10 shadow-[0_0_15px_rgba(167,209,174,0.2)]" : ""}`}>
-                  <item.icon className={`h-6 w-6 transition-all ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
-                </div>
-                <span className={`text-[10px] mt-1 font-mono uppercase tracking-widest transition-all ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100 absolute -bottom-4"}`}>
-                  {item.label}
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-
-        {/* Mobile Dock (Collapsable) */}
-        <div className="md:hidden flex flex-col items-center pointer-events-auto relative">
+        {/* Universal Dock (Collapsible) */}
+        <div className="flex flex-col items-center relative w-full md:w-auto pointer-events-auto">
           
           {/* Expanded Menu */}
-          <div className={`bg-forest-800/95 backdrop-blur-2xl rounded-3xl p-3 shadow-luxury mb-4 transition-all duration-300 origin-bottom flex gap-3 overflow-x-auto max-w-[90vw] no-scrollbar ${isNavExpanded ? 'scale-100 opacity-100 translate-y-0' : 'scale-50 opacity-0 translate-y-10 pointer-events-none absolute bottom-12'}`}>
+          <div className={`glass-panel-heavy rounded-[32px] p-4 mb-4 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] flex gap-2 md:gap-4 overflow-x-auto max-w-[90vw] md:max-w-[60vw] no-scrollbar ${isNavExpanded ? 'scale-100 opacity-100 translate-y-0' : 'scale-75 opacity-0 translate-y-8 pointer-events-none absolute bottom-12'}`}>
             {navItems.map((item) => {
               const isActive = pathname === item.src
               return (
@@ -58,36 +35,36 @@ const BottomNav = ({ children }) => {
                   href={item.src}
                   key={item.key}
                   onClick={() => setIsNavExpanded(false)}
-                  className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all min-w-[60px] ${
-                    isActive ? "bg-sage/10 text-sage border border-sage/20" : "text-cream/50 hover:bg-forest-700 hover:text-cream"
+                  className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all min-w-[60px] md:min-w-[70px] ${
+                    isActive ? "bg-white/10 text-foreground" : "text-white/40 hover:bg-white/5 hover:text-foreground"
                   }`}
                 >
-                  <item.icon className={`h-6 w-6 mb-1 ${isActive ? "scale-110" : ""}`} />
-                  <span className="text-[9px] font-mono uppercase tracking-widest">{item.label}</span>
+                  <item.icon className={`h-6 w-6 mb-1.5 transition-transform ${isActive ? "scale-110 text-[#0A84FF]" : ""}`} />
+                  <span className="text-[10px] md:text-[11px] font-medium tracking-wide">{item.label}</span>
                 </Link>
               )
             })}
           </div>
 
-          {/* Toggle Button */}
+          {/* Toggle Button (Minimized View) */}
           <button 
             onClick={() => setIsNavExpanded(!isNavExpanded)}
-            className="w-14 h-14 bg-forest-800/95 backdrop-blur-2xl border border-forest-600 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-full flex items-center justify-center text-sage transition-all hover:scale-105 active:scale-95 z-50 relative"
+            className="w-14 h-14 md:w-16 md:h-16 glass-panel-heavy rounded-full flex items-center justify-center text-foreground transition-all duration-300 hover:scale-105 active:scale-95 z-50 relative"
           >
             {isNavExpanded ? (
-              <X className="w-6 h-6 animate-in spin-in-180" />
+              <X className="w-6 h-6 md:w-7 md:h-7 text-white/70 animate-in spin-in-180 duration-300" />
             ) : (
               // Find active icon to display
               (() => {
                 const activeItem = navItems.find(item => pathname === item.src) || navItems[0];
                 const ActiveIcon = activeItem.icon;
-                return <ActiveIcon className="w-6 h-6 text-sage" />;
+                return <ActiveIcon className="w-6 h-6 md:w-7 md:h-7 text-[#0A84FF]" />;
               })()
             )}
             
             {/* Notification Dot */}
             {!isNavExpanded && (
-              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-forest-800 rounded-full"></span>
+              <span className="absolute top-1 right-1 md:top-1.5 md:right-1.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-[#0A84FF] rounded-full shadow-[0_0_8px_rgba(10,132,255,0.6)]"></span>
             )}
           </button>
         </div>

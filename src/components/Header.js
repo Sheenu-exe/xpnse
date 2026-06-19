@@ -35,16 +35,16 @@ export const Header = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsProfileOpen(true)}
-            className="p-1 pl-1.5 pr-4 bg-forest-800 rounded-full hover:bg-forest-700 transition flex items-center gap-3 shadow-luxury group"
+            className="p-1 pl-1.5 pr-4 bg-[#1C1C1E] border border-white/10 rounded-full hover:bg-[#2C2C2E] transition-all duration-300 flex items-center gap-3 shadow-sm group active:scale-95"
           >
-            <div className="w-9 h-9 rounded-full bg-forest-600 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
               {photoURL ? (
                 <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User className="h-4 w-4 text-sage" />
+                <User className="h-4 w-4 text-white/70" />
               )}
             </div>
-            <span className="text-sm font-bold text-cream/90 hidden sm:block font-mono tracking-tight group-hover:text-cream transition-colors">
+            <span className="text-sm font-medium text-foreground hidden sm:block tracking-tight transition-colors duration-300">
               {name || "Profile"}
             </span>
           </button>

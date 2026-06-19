@@ -8,32 +8,32 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Manrope', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'sans-serif'],
+        mono: ['"SF Mono"', 'ui-monospace', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
-        background: "#071006",
-        foreground: "#FFF2E6",
+        background: "#000000",
+        foreground: "#F5F5F7",
         forest: {
-          900: "#071006", // Primary Bg
-          800: "#0D180C", // Secondary Surface
-          700: "#173117", // Card Surface
-          600: "#1D3D1C", // Elevated
+          900: "#000000", // True OLED Black
+          800: "#1C1C1E", // Apple Dark Gray
+          700: "#2C2C2E", // Elevated Dark Gray
+          600: "#3A3A3C", // Higher Elevation
         },
-        sage: "#A7D1AE",
-        powder: "#BCDDF0",
+        sage: "#32D74B", // Apple Green / Sage Accent
+        powder: "#0A84FF", // Apple Blue Accent
         cream: {
-          DEFAULT: "#FFF2E6",
-          muted: "rgba(255,242,230,0.72)",
+          DEFAULT: "#F5F5F7",
+          muted: "rgba(245, 245, 247, 0.6)",
         }
       },
       boxShadow: {
-        'luxury': '0 20px 40px -15px rgba(0,0,0,0.5)',
-        'luxury-inner': 'inset 0 2px 4px 0 rgba(255,255,255,0.05)',
+        'luxury': '0 10px 40px -10px rgba(0,0,0,0.5)',
+        'luxury-inner': 'inset 0 1px 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.3)',
       },
       borderRadius: {
-        'luxury': '28px',
+        'luxury': '32px',
       }
     },
   },

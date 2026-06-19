@@ -145,13 +145,14 @@ export default function Savings() {
 
   return (
     <BottomNav activePage={activeTab} setActivePage={setActiveTab}>
-      <div className="min-h-screen bg-forest-900 text-cream selection:bg-sage/30 relative font-sans">
+      <div className="min-h-screen bg-background text-foreground selection:bg-[#0A84FF]/30 relative font-sans">
         
         {/* Subtle noise texture overlay */}
-        <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-overlay"></div>
+        <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-overlay z-0"></div>
 
         {/* Ambient background glow */}
-        <div className="fixed top-[0%] left-[50%] -translate-x-1/2 w-[80vw] h-[80vw] bg-sage/5 blur-[150px] rounded-full pointer-events-none mix-blend-screen"></div>
+        <div className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-[#0A84FF]/20 blur-[150px] rounded-full pointer-events-none mix-blend-screen z-0"></div>
+        <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-[#5E5CE6]/20 blur-[120px] rounded-full pointer-events-none mix-blend-screen z-0"></div>
 
         <div className="flex flex-col relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 pb-32">
           <Header />
@@ -159,10 +160,10 @@ export default function Savings() {
           {/* Heading */}
           <div className="mt-4 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-display font-extrabold tracking-tighter text-cream drop-shadow-lg">
-                Stash.
+              <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground drop-shadow-sm">
+                Stash
               </h2>
-              <p className="text-cream/50 mt-2 font-mono text-sm tracking-wide">
+              <p className="text-white/50 mt-2 font-medium text-sm tracking-wide">
                 Track your reserves, accounts, and financial growth.
               </p>
             </div>
@@ -170,9 +171,9 @@ export default function Savings() {
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
               <button 
                 onClick={() => { setEditAccountData(null); setIsAddAccountModalOpen(true); }}
-                className="w-full sm:w-auto bg-forest-800 hover:bg-forest-700 border border-forest-600 p-3 px-6 rounded-xl transition-all shadow-luxury text-cream font-bold tracking-wide flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto bg-[#0A84FF] hover:bg-opacity-90 p-3 px-6 rounded-full transition-all duration-300 shadow-sm text-white font-medium tracking-wide flex items-center justify-center gap-2 group active:scale-95"
               >
-                <Building2 className="w-4 h-4 text-cream/50 group-hover:text-cream transition-colors" />
+                <Building2 className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
                 <span>New Asset</span>
               </button>
             </div>
@@ -181,45 +182,45 @@ export default function Savings() {
           {/* Top Summary Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
             {/* Liquid Savings Card */}
-            <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury relative overflow-hidden group">
+            <div className="glass-panel rounded-[32px] p-6 relative overflow-hidden group hover:bg-white/[0.08] transition-colors duration-300">
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-sage/10 rounded-full blur-2xl group-hover:bg-sage/20 transition-all"></div>
-              <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-2">Available Cash</p>
+              <p className="font-medium text-xs text-white/50 tracking-wide mb-2">Available Cash</p>
               {isLoading ? (
-                <div className="h-10 w-32 bg-forest-700 rounded-lg animate-pulse mb-2"></div>
+                <div className="h-10 w-32 bg-white/5 rounded-lg animate-pulse mb-2"></div>
               ) : (
-                <h3 className="text-3xl md:text-4xl font-display font-bold text-sage tracking-tighter mb-2">
+                <h3 className="text-3xl md:text-4xl font-semibold text-foreground tracking-tight mb-2">
                   {currency}{liquidCapital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
               )}
-              <p className="text-xs font-mono text-cream/40 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-white/40 flex items-center gap-1 mt-1">
                 <TrendingUp className="w-3 h-3 text-sage" /> Highly liquid capital
               </p>
             </div>
 
             {/* Locked Assets Card */}
-            <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury">
-              <p className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-2">Locked Assets (-)</p>
+            <div className="glass-panel rounded-[32px] p-6 hover:bg-white/[0.08] transition-colors duration-300">
+              <p className="font-medium text-xs text-white/50 tracking-wide mb-2">Locked Assets (-)</p>
               {isLoading ? (
-                <div className="h-10 w-32 bg-forest-700 rounded-lg animate-pulse mb-2"></div>
+                <div className="h-10 w-32 bg-white/5 rounded-lg animate-pulse mb-2"></div>
               ) : (
-                <h3 className="text-3xl md:text-4xl font-display font-bold text-cream tracking-tighter mb-2">
+                <h3 className="text-3xl md:text-4xl font-semibold text-foreground tracking-tight mb-2">
                   {currency}{lockedAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
               )}
-              <p className="text-xs font-mono text-cream/40">FDs, SIPs, & Stocks</p>
+              <p className="text-[11px] font-medium text-white/40 mt-1">FDs, SIPs, & Stocks</p>
             </div>
 
             {/* Target Status Card */}
-            <div className="bg-forest-800/80 backdrop-blur-xl border border-forest-600 rounded-luxury p-6 shadow-luxury lg:col-span-2 flex flex-col">
+            <div className="glass-panel rounded-[32px] p-6 lg:col-span-2 flex flex-col">
               
               {/* Target Tabs */}
-              <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
                 {targets.map(t => (
                   <button 
                     key={t._id} 
                     onClick={() => setActiveTargetId(t._id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold tracking-wide whitespace-nowrap transition-all border ${
-                      activeTargetId === t._id ? "bg-sage text-forest-900 border-sage" : "bg-forest-900 text-cream/50 border-forest-700 hover:text-cream hover:border-forest-600"
+                    className={`px-4 py-2 rounded-full text-[13px] font-medium tracking-tight whitespace-nowrap transition-all border ${
+                      activeTargetId === t._id ? "bg-foreground text-background border-foreground" : "bg-white/5 text-white/50 border-white/10 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     {t.name}
@@ -227,21 +228,21 @@ export default function Savings() {
                 ))}
                 <button 
                   onClick={() => setIsAddTargetModalOpen(true)}
-                  className="p-2 rounded-lg bg-forest-900 text-cream/50 hover:text-sage hover:border-sage border border-forest-700 transition-colors flex-shrink-0"
+                  className="p-2 rounded-full bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10 transition-colors flex-shrink-0"
                   title="Create New Target"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="flex justify-between items-start mb-2">
-                <p className="font-mono text-xs text-sage uppercase tracking-widest flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4" /> {activeTarget.name} Status: {reserveStatus}
+                <p className="font-medium text-[11px] text-sage tracking-wider flex items-center gap-2">
+                  <ShieldCheck className="w-3 h-3" /> {activeTarget.name} Status: {reserveStatus}
                 </p>
                 {targets.length > 1 && (
                   <button 
                     onClick={() => handleDeleteTarget(activeTargetId)}
-                    className="text-xs text-red-400/70 hover:text-red-400 font-mono underline"
+                    className="text-[11px] text-red-500/70 hover:text-red-500 font-medium"
                   >
                     Delete
                   </button>
@@ -249,7 +250,7 @@ export default function Savings() {
               </div>
 
               <div className="flex items-end justify-between mb-2 mt-auto">
-                <h3 className="text-xl font-display font-bold text-cream tracking-tight flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
                   Target: 
                   {isEditingTarget ? (
                     <div className="flex items-center gap-1">
@@ -271,32 +272,31 @@ export default function Savings() {
                             handleUpdateTargetAmount(activeTarget.amount);
                           }
                         }}
-                        className="bg-forest-900 border border-forest-700 rounded-md px-2 py-1 text-sm w-28 text-cream focus:outline-none focus:border-sage"
+                        className="bg-black/50 border border-white/10 rounded-md px-2 py-1 text-sm w-28 text-foreground focus:outline-none focus:border-white/30"
                         autoFocus
                       />
                     </div>
                   ) : (
                     <span 
                       onClick={() => setIsEditingTarget(true)} 
-                      className="cursor-pointer hover:text-sage transition-colors border-b border-dashed border-cream/30 hover:border-sage"
+                      className="cursor-pointer hover:text-white/80 transition-colors border-b border-dashed border-white/20 hover:border-white/40"
                       title="Click to edit target amount"
                     >
                       {currency}{activeTarget.amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
                   )}
                 </h3>
-                <span className="text-sm font-mono text-cream/50">{Math.round(reserveProgress)}%</span>
+                <span className="text-sm font-medium text-white/50">{Math.round(reserveProgress)}%</span>
               </div>
               
-              <div className="w-full bg-forest-900 rounded-full h-3 mb-4 shadow-luxury-inner border border-forest-700">
+              <div className="w-full bg-white/5 rounded-full h-2.5 mb-4 shadow-inner overflow-hidden">
                 <div 
-                  className="bg-sage h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
+                  className="bg-foreground h-full rounded-full transition-all duration-1000 ease-out relative" 
                   style={{ width: `${reserveProgress}%` }}
                 >
-                  <div className="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite] -skew-x-12"></div>
                 </div>
               </div>
-              <p className="text-xs text-cream/40 leading-relaxed max-w-md">
+              <p className="text-[13px] text-white/40 leading-relaxed max-w-md">
                 Your <strong>{activeTarget.name}</strong> status is classified as <strong>{reserveStatus}</strong>. You are {(100 - reserveProgress).toFixed(1)}% away from this target.
               </p>
             </div>
@@ -307,49 +307,49 @@ export default function Savings() {
             
             {/* Accounts Column */}
             <div className="lg:col-span-2 space-y-6">
-              <h3 className="font-mono text-xs text-cream/50 uppercase tracking-widest flex items-center gap-2 mb-2">
+              <h3 className="font-medium text-xs text-white/50 uppercase tracking-widest flex items-center gap-2 mb-2">
                 <Briefcase className="w-4 h-4" /> Active Accounts
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {isLoading ? (
                   [...Array(4)].map((_, i) => (
-                    <div key={i} className="animate-pulse bg-forest-800/50 border border-forest-700 rounded-2xl p-5">
+                    <div key={i} className="animate-pulse glass-panel rounded-[32px] p-5">
                       <div className="flex justify-between items-start mb-4">
-                        <div className="w-10 h-10 bg-forest-700 rounded-xl"></div>
-                        <div className="h-6 w-16 bg-forest-700 rounded-md"></div>
+                        <div className="w-10 h-10 bg-white/10 rounded-xl"></div>
+                        <div className="h-6 w-16 bg-white/10 rounded-md"></div>
                       </div>
-                      <div className="h-6 w-32 bg-forest-700 rounded mb-2"></div>
-                      <div className="h-8 w-40 bg-forest-700 rounded"></div>
+                      <div className="h-6 w-32 bg-white/10 rounded mb-2"></div>
+                      <div className="h-8 w-40 bg-white/10 rounded"></div>
                     </div>
                   ))
                 ) : accounts.length > 0 ? accounts.map((acc) => (
-                  <div key={acc._id} className="bg-forest-800/50 hover:bg-forest-800 border border-forest-700 rounded-2xl p-5 transition-all shadow-luxury group cursor-pointer relative overflow-hidden">
+                  <div key={acc._id} className="glass-panel hover:bg-white/[0.08] rounded-[32px] p-5 transition-all group cursor-pointer relative overflow-hidden">
                     <div className="flex justify-between items-start mb-4">
-                      <div className="p-2 bg-forest-900 rounded-xl border border-forest-700/50 shadow-luxury-inner">
+                      <div className="p-2 bg-white/5 rounded-xl border border-white/10 shadow-inner">
                         {getAccountIcon(acc.accountType)}
                       </div>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={(e) => { e.stopPropagation(); setEditAccountData(acc); setIsAddAccountModalOpen(true); }}
-                          className="text-[10px] font-mono uppercase tracking-widest bg-forest-900 px-2 py-1 rounded-md text-cream/40 border border-forest-700 hover:text-sage transition-colors"
+                          className="text-[10px] font-medium uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md text-white/40 border border-white/10 hover:text-white hover:bg-white/10 transition-colors"
                           title="Edit Asset"
                         >
                           Edit
                         </button>
-                        <span className="text-[10px] font-mono uppercase tracking-widest bg-forest-900 px-2 py-1 rounded-md text-cream/40 border border-forest-700">
+                        <span className="text-[10px] font-medium uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md text-white/40 border border-white/10">
                           {acc.accountType}
                         </span>
                       </div>
                     </div>
-                    <h4 className="text-lg font-bold text-cream tracking-wide group-hover:text-sage transition-colors">{acc.name}</h4>
-                    <p className="text-2xl font-display font-bold text-cream/90 mt-1">
+                    <h4 className="text-[17px] font-semibold text-foreground tracking-tight group-hover:text-white/80 transition-colors">{acc.name}</h4>
+                    <p className="text-2xl font-semibold tracking-tight text-foreground mt-1">
                       {currency}{acc.currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                 )) : (
-                  <div className="sm:col-span-2 py-12 text-center border border-dashed border-forest-600 rounded-2xl">
-                    <p className="text-cream/30 font-mono text-sm uppercase tracking-widest">No accounts found</p>
+                  <div className="sm:col-span-2 py-12 text-center border border-dashed border-white/10 rounded-[24px]">
+                    <p className="text-white/30 font-medium text-sm tracking-wide">No accounts found</p>
                   </div>
                 )}
               </div>
@@ -357,8 +357,8 @@ export default function Savings() {
 
             {/* Analytics Sidebar */}
             <div className="space-y-6">
-              <div className="bg-forest-800 rounded-luxury border border-forest-700 p-6 shadow-luxury">
-                <h3 className="font-mono text-xs text-cream/50 uppercase tracking-widest mb-6 flex items-center gap-2">
+              <div className="glass-panel rounded-[32px] p-6">
+                <h3 className="font-medium text-xs text-white/50 tracking-wider mb-6 flex items-center gap-2">
                   <PieChart className="w-4 h-4" /> Capital Distribution
                 </h3>
                 
@@ -382,30 +382,30 @@ export default function Savings() {
                         </Pie>
                         <RechartsTooltip 
                           formatter={(value) => `${currency}${value.toLocaleString()}`}
-                          contentStyle={{ backgroundColor: '#0D180C', borderColor: '#1D3D1C', borderRadius: '12px', color: '#FFF2E6' }}
-                          itemStyle={{ color: '#A7D1AE' }}
+                          contentStyle={{ backgroundColor: '#1C1C1E', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '16px', color: '#FFF' }}
+                          itemStyle={{ color: '#FFF' }}
                         />
                       </RechartsPieChart>
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none flex-col">
-                      <span className="text-xs font-mono text-cream/30 uppercase tracking-widest">Total</span>
-                      <span className="text-lg font-bold text-sage">{currency}{totalSavings >= 1000 ? (totalSavings/1000).toFixed(1)+'k' : totalSavings}</span>
+                      <span className="text-[11px] font-medium text-white/40 uppercase tracking-widest">Total</span>
+                      <span className="text-[17px] font-semibold text-foreground tracking-tight">{currency}{totalSavings >= 1000 ? (totalSavings/1000).toFixed(1)+'k' : totalSavings}</span>
                     </div>
                   </div>
                 ) : (
                   <div className="h-64 flex items-center justify-center">
-                    <p className="text-cream/20 font-mono text-xs uppercase tracking-widest">Insufficient Data</p>
+                    <p className="text-white/20 font-medium text-sm tracking-wide">Insufficient Data</p>
                   </div>
                 )}
                 
                 <div className="mt-4 space-y-2">
                   {pieData.map((data, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
+                    <div key={index} className="flex justify-between items-center text-[13px] font-medium">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                        <span className="text-cream/70 truncate w-32">{data.name}</span>
+                        <span className="text-white/70 truncate w-32">{data.name}</span>
                       </div>
-                      <span className="font-mono text-cream/90">{((data.value / totalSavings) * 100).toFixed(0)}%</span>
+                      <span className="text-white/90">{((data.value / totalSavings) * 100).toFixed(0)}%</span>
                     </div>
                   ))}
                 </div>

@@ -44,22 +44,22 @@ export default function AddSavingsModal({ isOpen, onClose, userId, accounts, onT
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-forest-900 border border-forest-700 w-full max-w-md rounded-luxury p-6 shadow-2xl relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-cream/50 hover:text-cream">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+      <div className="bg-[#1C1C1E] border border-white/10 w-full max-w-md rounded-[32px] p-6 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-2xl font-display font-bold text-cream mb-6">Manage Capital</h2>
+        <h2 className="text-[17px] font-semibold text-foreground tracking-tight mb-6">Manage Capital</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex bg-forest-800 p-1 rounded-xl">
+          <div className="flex bg-white/5 p-1 rounded-[16px] border border-white/5">
             {["deposit", "withdrawal", "transfer"].map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`flex-1 py-2 text-xs font-mono uppercase tracking-widest rounded-lg transition-colors ${
-                  type === t ? "bg-forest-600 text-cream" : "text-cream/50 hover:text-cream/80"
+                className={`flex-1 py-2 text-[11px] font-medium uppercase tracking-wider rounded-xl transition-all duration-300 ${
+                  type === t ? "bg-[#0A84FF] text-white shadow-sm" : "text-white/50 hover:text-white"
                 }`}
               >
                 {t}
@@ -69,11 +69,11 @@ export default function AddSavingsModal({ isOpen, onClose, userId, accounts, onT
 
           <div className={type === 'transfer' ? "flex items-center gap-2" : ""}>
             <div className="flex-1">
-              <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">
+              <label className="block text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">
                 {type === 'transfer' ? 'From' : 'Account'}
               </label>
-              <select required value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage outline-none">
-                <option value="">Select...</option>
+              <select required value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-[16px] p-3 text-[15px] text-foreground focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] outline-none appearance-none transition-all">
+                <option value="" className="text-white/30">Select...</option>
                 {accounts.map(a => (
                   <option key={a._id} value={a._id}>{a.name} ({a.currentBalance})</option>
                 ))}
@@ -82,11 +82,11 @@ export default function AddSavingsModal({ isOpen, onClose, userId, accounts, onT
 
             {type === 'transfer' && (
               <>
-                <div className="pt-5"><ArrowRight className="text-cream/50 w-5 h-5" /></div>
+                <div className="pt-5"><ArrowRight className="text-white/30 w-5 h-5" /></div>
                 <div className="flex-1">
-                  <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">To</label>
-                  <select required value={transferToAccountId} onChange={e => setTransferToAccountId(e.target.value)} className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage outline-none">
-                    <option value="">Select...</option>
+                  <label className="block text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">To</label>
+                  <select required value={transferToAccountId} onChange={e => setTransferToAccountId(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-[16px] p-3 text-[15px] text-foreground focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] outline-none appearance-none transition-all">
+                    <option value="" className="text-white/30">Select...</option>
                     {accounts.filter(a => a._id !== accountId).map(a => (
                       <option key={a._id} value={a._id}>{a.name}</option>
                     ))}
@@ -97,15 +97,15 @@ export default function AddSavingsModal({ isOpen, onClose, userId, accounts, onT
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">Amount</label>
-            <input type="number" required value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream text-lg font-mono tracking-tighter focus:border-sage focus:ring-1 focus:ring-sage outline-none" />
+            <label className="block text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Amount</label>
+            <input type="number" required value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="w-full bg-black/50 border border-white/10 rounded-[16px] p-3 text-foreground text-[15px] tracking-tight focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] outline-none transition-all placeholder-white/20" />
           </div>
           <div>
-            <label className="block text-xs font-mono text-cream/50 uppercase tracking-widest mb-1">Note / Reference</label>
-            <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Q1 Profit Allocation" className="w-full bg-forest-800 border border-forest-600 rounded-xl p-3 text-cream focus:border-sage focus:ring-1 focus:ring-sage outline-none" />
+            <label className="block text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Note / Reference</label>
+            <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Q1 Profit Allocation" className="w-full bg-black/50 border border-white/10 rounded-[16px] p-3 text-foreground text-[15px] focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] outline-none transition-all placeholder-white/20" />
           </div>
 
-          <button disabled={isSubmitting} type="submit" className="w-full bg-sage text-forest-900 font-bold py-3 rounded-xl mt-4 hover:bg-sage/90 transition-colors">
+          <button disabled={isSubmitting} type="submit" className="w-full bg-[#0A84FF] text-white font-medium tracking-wide py-3.5 rounded-full mt-4 hover:bg-opacity-90 transition-all duration-300 shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-[15px]">
             {isSubmitting ? 'Processing...' : 'Execute'}
           </button>
         </form>
