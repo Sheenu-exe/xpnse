@@ -1,5 +1,5 @@
-import dbConnect from '../../../../libs/mongodb';
-import Collab from '../../../../models/Collab';
+import dbConnect from '../../../libs/mongodb';
+import Collab from '../../../models/Collab';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
