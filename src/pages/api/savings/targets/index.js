@@ -1,5 +1,6 @@
 import dbConnect from '../../../../libs/mongodb';
 import SavingsTarget from '../../../../models/SavingsTarget';
+import Collab from '../../../../models/Collab';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -10,7 +11,10 @@ export default async function handler(req, res) {
       try {
         const { userId } = req.query;
         let query = {};
-        if (userId) query.userId = userId;
+        if (userId) {
+          const collab = await Collab.findOne({ users: userId });
+          query.userId = collab ? { $in: collab.users } : userId;
+        }
         const targets = await SavingsTarget.find(query).sort({ createdAt: 1 });
         res.status(200).json(targets);
       } catch (err) {

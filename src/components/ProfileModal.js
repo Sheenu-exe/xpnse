@@ -17,6 +17,9 @@ export const ProfileModal = ({ isOpen, onClose }) => {
   const [currency, setCurrency] = useState("USD");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const [partnerCodeToJoin, setPartnerCodeToJoin] = useState("");
+  const [collabMembers, setCollabMembers] = useState(1);
   const fileInputRef = useRef(null);
 
   const router = useRouter();
@@ -39,6 +42,15 @@ export const ProfileModal = ({ isOpen, onClose }) => {
           setBudget(parsed.budget || "");
           setCurrency(parsed.currency || "USD");
         }
+
+        // Fetch Collab info
+        fetch(`/api/collab?userId=${currentUser.uid}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.inviteCode) setInviteCode(data.inviteCode);
+            if (data.users) setCollabMembers(data.users.length);
+          })
+          .catch(err => console.error("Failed to fetch collab"));
       } else {
         setUser(null);
       }
@@ -71,6 +83,27 @@ export const ProfileModal = ({ isOpen, onClose }) => {
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  const handleJoinCollab = async () => {
+    if (!partnerCodeToJoin || !auth.currentUser) return;
+    try {
+      const res = await fetch('/api/collab/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: auth.currentUser.uid, inviteCode: partnerCodeToJoin })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Successfully joined collab!");
+        setCollabMembers(data.users.length);
+        setPartnerCodeToJoin("");
+      } else {
+        alert(data.error || "Failed to join");
+      }
+    } catch (err) {
+      alert("Failed to join");
     }
   };
 
@@ -234,6 +267,45 @@ export const ProfileModal = ({ isOpen, onClose }) => {
                   <option value="GBP">GBP (£)</option>
                   <option value="INR">INR (₹)</option>
                 </select>
+              </div>
+
+              {/* Collab Section */}
+              <div className="md:col-span-2 pt-4 mt-4 border-t border-white/5">
+                <h3 className="text-sm font-semibold text-foreground tracking-tight mb-4 flex items-center justify-between">
+                  Household Collaboration
+                  {collabMembers > 1 && (
+                    <span className="bg-[#32D74B]/20 text-[#32D74B] text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">
+                      Linked
+                    </span>
+                  )}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="bg-white/5 border border-white/10 rounded-[16px] p-4 flex flex-col justify-center">
+                    <p className="text-[11px] font-medium tracking-wider uppercase text-white/50 mb-1">Your Invite Code</p>
+                    <p className="font-mono text-xl text-white tracking-widest">{inviteCode || "..."}</p>
+                    <p className="text-[10px] text-white/40 mt-1">Share this code with your partner</p>
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <label className="block text-[11px] font-medium tracking-wider uppercase text-white/50 mb-2 ml-1">Join a Partner</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={partnerCodeToJoin}
+                        onChange={(e) => setPartnerCodeToJoin(e.target.value.toUpperCase())}
+                        className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-[12px] focus:ring-1 focus:ring-[#0A84FF] focus:border-[#0A84FF] outline-none text-foreground transition-all text-[13px] placeholder-white/20 uppercase font-mono"
+                        placeholder="ENTER CODE"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleJoinCollab}
+                        disabled={!partnerCodeToJoin}
+                        className="px-4 py-3 bg-[#0A84FF] text-white rounded-[12px] text-[13px] font-medium hover:bg-opacity-90 disabled:opacity-50 transition-all"
+                      >
+                        Join
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

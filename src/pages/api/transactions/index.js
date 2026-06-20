@@ -1,6 +1,7 @@
 import dbConnect from '../../../libs/mongodb';
 import Transaction from '../../../models/Transaction';
 import SavingsAccount from '../../../models/SavingsAccount';
+import Collab from '../../../models/Collab';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -11,7 +12,10 @@ export default async function handler(req, res) {
       try {
         const { userId } = req.query;
         let query = {};
-        if (userId) query.userId = userId;
+        if (userId) {
+          const collab = await Collab.findOne({ users: userId });
+          query.userId = collab ? { $in: collab.users } : userId;
+        }
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.status(200).json(transactions);
       } catch (err) {
